@@ -19,7 +19,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import I.imessenger.R;
 import I.imessenger.databinding.ActivityRegisterBinding;
+import I.imessenger.models.User; // Make sure 'models' matches your actual package name
 
 public class RegisterActivity extends AppCompatActivity {
 
@@ -179,7 +181,13 @@ public class RegisterActivity extends AppCompatActivity {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(RegisterActivity.this, getString(R.string.register_failed, e.getMessage()), Toast.LENGTH_SHORT).show();
+                        if (e instanceof com.google.firebase.auth.FirebaseAuthUserCollisionException) {
+                            binding.etEmail.setError(getString(R.string.email_already_exists));
+                            binding.etEmail.requestFocus();
+                            Toast.makeText(RegisterActivity.this, getString(R.string.email_already_exists), Toast.LENGTH_LONG).show();
+                        } else {
+                            Toast.makeText(RegisterActivity.this, getString(R.string.register_failed, e.getMessage()), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
     }

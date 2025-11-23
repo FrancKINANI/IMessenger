@@ -1,7 +1,8 @@
 <resources>
     <color name="ismagi_blue_primary">#003366</color>
     <color name="ismagi_blue_light">#0055AA</color>
-    <color name="ismagi_accent">#FF9800</color>
+    <color name="ismagi_accent">#0055AA</color> <!-- Changed to Blue Light for consistency -->
+    <color name="colorLogout">#0055AA</color> <!-- Red for Logout -->
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
     <color name="background_gray">#F5F5F5</color>
@@ -12,5 +13,5 @@
     <color name="colorPrimary">@color/ismagi_blue_primary</color>
     <color name="colorSecondary">@color/ismagi_accent</color>
     <color name="colorOnPrimary">@color/white</color>
-    <color name="colorOnSecondary">@color/black</color>
+    <color name="colorOnSecondary">@color/white</color>
 </resources>

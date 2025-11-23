@@ -16,8 +16,7 @@
         
         <activity
             android:name=".activities.SplashActivity"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.NoActionBar"> <!-- Full screen for splash -->
+            android:exported="true"> <!-- Theme inherited from App (NoActionBar) -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -26,13 +25,11 @@
 
         <activity
             android:name=".activities.LoginActivity"
-            android:exported="false"
-            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+            android:exported="false"/>
 
         <activity
             android:name=".activities.RegisterActivity"
-            android:exported="false"
-            android:theme="@style/Theme.AppCompat.NoActionBar"/>
+            android:exported="false"/>
 
         <activity
             android:name=".activities.MainActivity"

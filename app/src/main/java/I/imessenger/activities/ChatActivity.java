@@ -3,11 +3,14 @@ package I.imessenger.activities;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
+import com.bumptech.glide.Glide;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
+
+import I.imessenger.R;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.EventListener;
@@ -43,14 +46,26 @@ public class ChatActivity extends AppCompatActivity {
 
         receiverUserId = getIntent().getStringExtra("userId");
         String userName = getIntent().getStringExtra("userName");
+        String userImage = getIntent().getStringExtra("userImage");
         currentUserId = FirebaseAuth.getInstance().getUid();
 
-        if (userName != null) {
-            binding.toolbar.setTitle(userName);
-        }
         setSupportActionBar(binding.toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false); // Disable default title
         binding.toolbar.setNavigationOnClickListener(v -> finish());
+
+        if (userName != null) {
+            binding.textName.setText(userName);
+        }
+
+        if (userImage != null && !userImage.isEmpty()) {
+            Glide.with(this)
+                    .load(userImage)
+                    .placeholder(R.drawable.logo)
+                    .into(binding.imageProfile);
+        } else {
+            binding.imageProfile.setImageResource(R.drawable.logo);
+        }
 
         init();
         listenMessages();

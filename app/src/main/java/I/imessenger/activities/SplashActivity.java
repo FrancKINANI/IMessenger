@@ -31,16 +31,24 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void checkUserStatus() {
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            // User is logged in, go to Main Activity
-            Intent intent = new Intent(SplashActivity.this, MainActivity.class);
-            startActivity(intent);
-        } else {
-            // User is not logged in, go to Login Activity
+        try {
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser != null) {
+                // User is logged in, go to Main Activity
+                Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+                startActivity(intent);
+            } else {
+                // User is not logged in, go to Login Activity
+                Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+                startActivity(intent);
+            }
+            finish();
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Fallback to Login if something goes wrong
             Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
             startActivity(intent);
+            finish();
         }
-        finish();
     }
 }
