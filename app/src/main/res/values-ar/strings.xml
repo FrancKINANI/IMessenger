@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">IMessenger</string>
+    <string name="slogan">تواصل. دردش. شارك.</string>
+    <string name="welcome_back">مرحباً بعودتك!</string>
+    <string name="create_account">إنشاء حساب</string>
+    <string name="login">تسجيل الدخول</string>
+    <string name="register">تسجيل</string>
+    <string name="email">البريد الإلكتروني</string>
+    <string name="password">كلمة المرور</string>
+    <string name="full_name">الاسم الكامل</string>
+    <string name="no_account">ليس لديك حساب؟ سجل الآن</string>
+    <string name="have_account">لديك حساب بالفعل؟ تسجيل الدخول</string>
+    <string name="email_required">البريد الإلكتروني مطلوب</string>
+    <string name="password_required">كلمة المرور مطلوبة</string>
+    <string name="name_required">الاسم مطلوب</string>
+    <string name="password_length_error">يجب أن تكون كلمة المرور 6 أحرف على الأقل</string>
+    <string name="login_success">تم تسجيل الدخول بنجاح</string>
+    <string name="login_failed">فشل تسجيل الدخول: %s</string>
+    <string name="register_success">تم إنشاء الحساب</string>
+    <string name="register_failed">فشل التسجيل: %s</string>
+    <string name="save_user_failed">فشل حفظ البيانات: %s</string>
+    <string name="logout">تسجيل الخروج</string>
+    <string name="welcome_message">مرحباً بك في IMessenger!</string>
+    <string name="sign_in_google">تسجيل الدخول عبر جوجل</string>
+</resources>

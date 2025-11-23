@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">IMessenger</string>
+    <string name="slogan">Connecter. Discuter. Partager.</string>
+    <string name="welcome_back">Bon retour !</string>
+    <string name="create_account">Créer un compte</string>
+    <string name="login">Connexion</string>
+    <string name="register">S\'inscrire</string>
+    <string name="email">Email</string>
+    <string name="password">Mot de passe</string>
+    <string name="full_name">Nom complet</string>
+    <string name="no_account">Pas encore de compte ? S\'inscrire</string>
+    <string name="have_account">Déjà un compte ? Se connecter</string>
+    <string name="email_required">L\'email est requis</string>
+    <string name="password_required">Le mot de passe est requis</string>
+    <string name="name_required">Le nom est requis</string>
+    <string name="password_length_error">Le mot de passe doit contenir au moins 6 caractères</string>
+    <string name="login_success">Connexion réussie</string>
+    <string name="login_failed">Échec de la connexion : %s</string>
+    <string name="register_success">Compte créé</string>
+    <string name="register_failed">Échec de l\'inscription : %s</string>
+    <string name="save_user_failed">Échec de l\'enregistrement des données : %s</string>
+    <string name="logout">Déconnexion</string>
+    <string name="welcome_message">Bienvenue sur IMessenger !</string>
+    <string name="sign_in_google">Se connecter avec Google</string>
+</resources>

@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "519173078520",
+    "project_id": "imessenger-df715",
+    "storage_bucket": "imessenger-df715.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:519173078520:android:41a81bb899e71ef55d6a0d",
+        "android_client_info": {
+          "package_name": "I.imessenger"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "519173078520-th22fnjd76u87d15r72vg6aunqd3edr8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBkwksgWeN8wj98SoURgmEImQPhiJQ9hEA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "519173078520-th22fnjd76u87d15r72vg6aunqd3edr8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

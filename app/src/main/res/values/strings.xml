@@ -1,0 +1,25 @@
+<resources>
+    <string name="app_name">IMessenger</string>
+    <string name="slogan">Connect. Chat. Share.</string>
+    <string name="welcome_back">Welcome Back!</string>
+    <string name="create_account">Create Account</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="full_name">Full Name</string>
+    <string name="no_account">Don\'t have an account? Register</string>
+    <string name="have_account">Already have an account? Login</string>
+    <string name="email_required">Email is required</string>
+    <string name="password_required">Password is required</string>
+    <string name="name_required">Name is required</string>
+    <string name="password_length_error">Password must be at least 6 characters</string>
+    <string name="login_success">Login Successful</string>
+    <string name="login_failed">Login Failed: %s</string>
+    <string name="register_success">Account Created</string>
+    <string name="register_failed">Registration Failed: %s</string>
+    <string name="save_user_failed">Failed to save user data: %s</string>
+    <string name="logout">Logout</string>
+    <string name="welcome_message">Welcome to IMessenger!</string>
+    <string name="sign_in_google">Sign in with Google</string>
+</resources>
