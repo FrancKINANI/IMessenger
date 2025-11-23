@@ -1,4 +1,4 @@
-# 📱 ISMAGI Connect - Project Charter & Roadmap
+# 📱 IMessenger - Project Charter & Roadmap
 
 ## Project Overview
 
