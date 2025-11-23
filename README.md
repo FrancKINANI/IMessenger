@@ -1,4 +1,4 @@
-# 📱 ISMAGI Messenger
+# 📱 IMessenger
 
 > The centralized digital ecosystem for students, professors, and alumni of ISMAGI.
 
@@ -74,8 +74,8 @@ The application replaces dispersed informal groups (WhatsApp, Facebook) with an 
 
 #### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/IMessenger.git
-cd ismagi-connect
+git clone https://github.com/FrancKINANI/IMessenger.git
+cd IMessenger
 ```
 
 #### 2. Open in Android Studio
@@ -94,7 +94,7 @@ This project requires a Firebase connection to function. The configuration file 
    - Authentication (Email/Password)
    - Firestore Database
    - Storage
-3. Add an Android app with the package name: `ma.ismagi.connect`
+3. Add an Android app with the package name: `I.iMessenger`
 4. Download the `google-services.json` file
 5. Place this file in the `app/` folder:
    ```
@@ -143,7 +143,6 @@ Project created by 3 ISMAGI students:
 
 - [Technical Specifications](./tech_specs.md) - Detailed technical architecture
 - [Project Roadmap](./roadmap.md) - Complete development timeline
-- [Development Guidelines](./prompt.md) - Code standards and best practices
 
 ---
 
