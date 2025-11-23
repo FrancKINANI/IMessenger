@@ -1,4 +1,4 @@
-# 📱 ISMAGI Connect
+# 📱 ISMAGI Messenger
 
 > The centralized digital ecosystem for students, professors, and alumni of ISMAGI.
 
@@ -6,7 +6,7 @@
 
 ## 📋 About the Project
 
-ISMAGI Connect is a native Android mobile application developed as part of a 3-month academic project. It aims to modernize and centralize communication within the institute.
+IMessenger is a native Android mobile application developed as part of a 3-month academic project. It aims to modernize and centralize communication within the institute(ISMAGI).
 
 The application replaces dispersed informal groups (WhatsApp, Facebook) with an official, secure platform dedicated to student and academic life.
 
@@ -98,7 +98,7 @@ This project requires a Firebase connection to function. The configuration file 
 4. Download the `google-services.json` file
 5. Place this file in the `app/` folder:
    ```
-   ismagi-connect/app/google-services.json
+   IMessenger/app/google-services.json
    ```
 6. Rebuild the project: **Build > Rebuild Project**
 
