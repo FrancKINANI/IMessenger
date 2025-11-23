@@ -23,4 +23,5 @@
     <string name="logout">تسجيل الخروج</string>
     <string name="welcome_message">مرحباً بك في IMessenger!</string>
     <string name="sign_in_google">تسجيل الدخول عبر جوجل</string>
+    <string name="type_message">اكتب رسالة...</string>
 </resources>

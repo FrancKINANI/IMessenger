@@ -23,4 +23,5 @@
     <string name="logout">Déconnexion</string>
     <string name="welcome_message">Bienvenue sur IMessenger !</string>
     <string name="sign_in_google">Se connecter avec Google</string>
+    <string name="type_message">Tapez un message...</string>
 </resources>
