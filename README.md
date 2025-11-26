@@ -141,8 +141,8 @@ Project created by 3 ISMAGI students:
 
 ## 📚 Documentation
 
-- [Technical Specifications](./tech_specs.md) - Detailed technical architecture
-- [Project Roadmap](./roadmap.md) - Complete development timeline
+- [Technical Specifications](./app/Details/tech_specs.md) - Detailed technical architecture
+- [Project Roadmap](./app/Details/roadmap.md) - Complete development timeline
 
 ---
 
