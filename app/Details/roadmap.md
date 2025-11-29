@@ -44,7 +44,7 @@ To meet the 3-month deadline, a **Serverless architecture** is imperative:
 ### Dev C (Lead Features & Tools)
 - Calendar
 - Document drive
-- Polls
+- Polls,Manage calls for project(Students or professors launching projects can inform and get others who want to work with them: good way to find partners etc.)
 - Geolocation
 - Video API integration (Zoom/Meet)
 
