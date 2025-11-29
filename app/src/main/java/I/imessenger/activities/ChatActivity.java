@@ -37,6 +37,7 @@ public class ChatActivity extends AppCompatActivity {
     private FirebaseFirestore database;
     private String currentUserId;
     private String receiverUserId;
+    private String groupId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +46,7 @@ public class ChatActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         receiverUserId = getIntent().getStringExtra("userId");
+        groupId = getIntent().getStringExtra("groupId");
         String userName = getIntent().getStringExtra("userName");
         String userImage = getIntent().getStringExtra("userImage");
         currentUserId = FirebaseAuth.getInstance().getUid();
@@ -87,7 +89,11 @@ public class ChatActivity extends AppCompatActivity {
 
         HashMap<String, Object> message = new HashMap<>();
         message.put("senderId", currentUserId);
-        message.put("receiverId", receiverUserId);
+        if (groupId != null) {
+            message.put("groupId", groupId);
+        } else {
+            message.put("receiverId", receiverUserId);
+        }
         message.put("message", binding.inputMessage.getText().toString());
         message.put("timestamp", new Date());
 
@@ -96,14 +102,20 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void listenMessages() {
-        database.collection("chat")
-                .whereEqualTo("senderId", currentUserId)
-                .whereEqualTo("receiverId", receiverUserId)
-                .addSnapshotListener(eventListener);
-        database.collection("chat")
-                .whereEqualTo("senderId", receiverUserId)
-                .whereEqualTo("receiverId", currentUserId)
-                .addSnapshotListener(eventListener);
+        if (groupId != null) {
+            database.collection("chat")
+                    .whereEqualTo("groupId", groupId)
+                    .addSnapshotListener(eventListener);
+        } else {
+            database.collection("chat")
+                    .whereEqualTo("senderId", currentUserId)
+                    .whereEqualTo("receiverId", receiverUserId)
+                    .addSnapshotListener(eventListener);
+            database.collection("chat")
+                    .whereEqualTo("senderId", receiverUserId)
+                    .whereEqualTo("receiverId", currentUserId)
+                    .addSnapshotListener(eventListener);
+        }
     }
 
     private final EventListener<QuerySnapshot> eventListener = (value, error) -> {
@@ -117,6 +129,7 @@ public class ChatActivity extends AppCompatActivity {
                     ChatMessage chatMessage = new ChatMessage();
                     chatMessage.senderId = documentChange.getDocument().getString("senderId");
                     chatMessage.receiverId = documentChange.getDocument().getString("receiverId");
+                    chatMessage.groupId = documentChange.getDocument().getString("groupId");
                     chatMessage.message = documentChange.getDocument().getString("message");
                     chatMessage.dateObject = documentChange.getDocument().getDate("timestamp");
                     chatMessage.dateTime = getReadableDateTime(chatMessage.dateObject);

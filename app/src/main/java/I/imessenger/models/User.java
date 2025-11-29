@@ -8,12 +8,13 @@ public class User {
     private String level;
     private String profileImage;
     private String fcmToken;
+    private String groups;
 
     public User() {
         // Required for Firestore
     }
 
-    public User(String uid, String email, String fullName, String role, String level, String profileImage, String fcmToken) {
+    public User(String uid, String email, String fullName, String role, String level, String profileImage, String fcmToken, String groups) {
         this.uid = uid;
         this.email = email;
         this.fullName = fullName;
@@ -21,6 +22,7 @@ public class User {
         this.level = level;
         this.profileImage = profileImage;
         this.fcmToken = fcmToken;
+        this.groups = groups;
     }
 
     public String getUid() {
@@ -77,5 +79,13 @@ public class User {
 
     public void setFcmToken(String fcmToken) {
         this.fcmToken = fcmToken;
+    }
+
+    public String getGroups() {
+        return groups;
+    }
+
+    public void setGroups(String groups) {
+        this.groups = groups;
     }
 }

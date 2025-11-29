@@ -107,7 +107,8 @@ public class LoginActivity extends AppCompatActivity {
                 "student",
                 "1st Year",
                 firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "",
-                ""
+                "",
+                "" // Added empty string for 'groups'
         );
 
         db.collection("users").document(firebaseUser.getUid())

@@ -131,7 +131,8 @@ public class RegisterActivity extends AppCompatActivity {
                 "student",
                 "1st Year",
                 firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "",
-                ""
+                "",
+                "" // groups
         );
 
         db.collection("users").document(firebaseUser.getUid())
@@ -150,6 +151,8 @@ public class RegisterActivity extends AppCompatActivity {
         String name = binding.etName.getText().toString().trim();
         String email = binding.etEmail.getText().toString().trim();
         String password = binding.etPassword.getText().toString().trim();
+        String role = binding.etRole.getText().toString().trim();
+        String level = binding.etLevel.getText().toString().trim();
 
         if (TextUtils.isEmpty(name)) {
             binding.etName.setError(getString(R.string.name_required));
@@ -158,6 +161,16 @@ public class RegisterActivity extends AppCompatActivity {
 
         if (TextUtils.isEmpty(email)) {
             binding.etEmail.setError(getString(R.string.email_required));
+            return;
+        }
+
+        if (TextUtils.isEmpty(role)) {
+            binding.etRole.setError("Role is required");
+            return;
+        }
+
+        if (TextUtils.isEmpty(level)) {
+            binding.etLevel.setError("Level is required");
             return;
         }
 
@@ -175,7 +188,7 @@ public class RegisterActivity extends AppCompatActivity {
                 .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                     @Override
                     public void onSuccess(AuthResult authResult) {
-                        saveUserToFirestore(authResult.getUser(), name);
+                        saveUserToFirestore(authResult.getUser(), name, role, level);
                     }
                 })
                 .addOnFailureListener(new OnFailureListener() {
@@ -192,17 +205,18 @@ public class RegisterActivity extends AppCompatActivity {
                 });
     }
 
-    private void saveUserToFirestore(FirebaseUser firebaseUser, String name) {
+    private void saveUserToFirestore(FirebaseUser firebaseUser, String name, String role, String level) {
         if (firebaseUser == null) return;
 
         User user = new User(
                 firebaseUser.getUid(),
                 firebaseUser.getEmail(),
                 name,
-                "student", // Default role
-                "1st Year", // Default level
+                role,
+                level,
                 "", // No profile image initially
-                "" // No FCM token initially
+                "", // No FCM token initially
+                "" // No groups initially
         );
 
         db.collection("users").document(firebaseUser.getUid())
