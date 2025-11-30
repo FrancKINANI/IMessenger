@@ -52,7 +52,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="24dp"
             android:layout_marginVertical="8dp"
-            app:cardBackgroundColor="@color/white"
+            app:cardBackgroundColor="@color/surface_color"
             app:cardCornerRadius="24dp"
             app:cardElevation="12dp">
 
@@ -81,17 +81,17 @@
                     app:boxCornerRadiusBottomStart="12dp"
                     app:boxCornerRadiusTopEnd="12dp"
                     app:boxCornerRadiusTopStart="12dp"
-                    app:boxStrokeColor="@color/ismagi_blue_primary"
+                    app:boxStrokeColor="?attr/colorPrimary"
                     app:boxStrokeWidth="2dp"
-                    app:hintTextColor="@color/ismagi_blue_primary"
-                    android:textColorHint="@color/black">
+                    app:hintTextColor="?attr/colorPrimary"
+                    android:textColorHint="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textPersonName"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/text_primary" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -114,7 +114,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textEmailAddress"
-                        android:textColor="@color/black"
+                        android:textColor="@color/text_primary"
                         tools:ignore="SpeakableTextPresentCheck" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -138,7 +138,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/text_primary" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -161,7 +161,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="text"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/text_primary" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <com.google.android.material.textfield.TextInputLayout
@@ -177,15 +177,15 @@
                     app:boxStrokeColor="@color/ismagi_blue_primary"
                     app:boxStrokeWidth="2dp"
                     app:endIconMode="password_toggle"
-                    app:hintTextColor="@color/ismagi_blue_primary"
-                    android:textColorHint="@color/black">
+                    app:hintTextColor="?attr/colorPrimary"
+                    android:textColorHint="@color/text_secondary">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etPassword"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:inputType="textPassword"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/text_primary" />
                 </com.google.android.material.textfield.TextInputLayout>
 
                 <Button
@@ -205,14 +205,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
-                    android:backgroundTint="@color/white"
+                    android:backgroundTint="@color/surface_color"
                     android:padding="14dp"
                     android:text="@string/sign_in_google"
-                    android:textColor="@color/black"
+                    android:textColor="@color/text_primary"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     app:cornerRadius="12dp"
-                    app:strokeColor="@color/black"
+                    app:strokeColor="@color/text_primary"
                     app:strokeWidth="1dp" />
 
             </LinearLayout>

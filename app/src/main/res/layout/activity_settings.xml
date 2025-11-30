@@ -25,7 +25,7 @@
             android:id="@+id/btnEditProfile"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
+            android:background="@color/surface_color"
             android:padding="16dp"
             android:text="Edit Profile"
             android:textColor="@color/text_primary"
@@ -40,7 +40,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/white"
+            android:background="@color/surface_color"
             android:orientation="horizontal"
             android:padding="16dp">
 
@@ -68,7 +68,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="32dp"
-            android:background="@color/white"
+            android:background="@color/surface_color"
             android:padding="16dp"
             android:text="Log Out"
             android:textColor="@color/colorLogout"

@@ -11,12 +11,8 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +23,7 @@ import I.imessenger.databinding.FragmentChatListBinding;
 import I.imessenger.models.ChatConversation;
 import I.imessenger.models.Group;
 import I.imessenger.models.User;
+import I.imessenger.viewmodels.ChatListViewModel;
 
 public class ChatListFragment extends Fragment {
 
@@ -43,7 +40,7 @@ public class ChatListFragment extends Fragment {
     private List<ChatConversation> publicGroupsList;
     private List<ChatConversation> eventGroupsList;
 
-    private FirebaseFirestore db;
+    private ChatListViewModel viewModel;
     private User currentUserModel;
     
     private boolean isDiscoverTab = false;
@@ -63,7 +60,8 @@ public class ChatListFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        db = FirebaseFirestore.getInstance();
+        viewModel = new ViewModelProvider(this).get(ChatListViewModel.class);
+
         conversationList = new ArrayList<>();
         groupsList = new ArrayList<>();
         adminList = new ArrayList<>();
@@ -79,7 +77,7 @@ public class ChatListFragment extends Fragment {
 
         setupTabs();
         setupSearch();
-        loadData();
+        observeData();
     }
 
     private void setupTabs() {
@@ -92,7 +90,7 @@ public class ChatListFragment extends Fragment {
         binding.tabDiscover.setOnClickListener(v -> {
             isDiscoverTab = true;
             updateTabUI();
-            fetchDiscoverGroups(); // Fetch when tab clicked
+            refreshAdapter();
         });
     }
 
@@ -132,7 +130,6 @@ public class ChatListFragment extends Fragment {
     }
 
     private void filter(String query) {
-        // Simple client-side filtering for now
         List<ChatConversation> filteredList = new ArrayList<>();
         List<ChatConversation> sourceList = new ArrayList<>();
         
@@ -151,168 +148,76 @@ public class ChatListFragment extends Fragment {
             }
         }
         
-        // Re-build adapter list with headers if needed, or just show flat list for search
-        // For simplicity, just show flat list
         conversationsAdapter = new ConversationsAdapter(getContext(), filteredList);
         binding.recyclerViewUsers.setAdapter(conversationsAdapter);
     }
 
-    private void loadData() {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (firebaseUser == null) return;
-
+    private void observeData() {
         binding.progressBar.setVisibility(View.VISIBLE);
 
-        // 1. Get Current User Details
-        db.collection("users").document(firebaseUser.getUid()).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    currentUserModel = documentSnapshot.toObject(User.class);
-                    if (currentUserModel != null) {
-                        fetchGroupsAndContacts();
-                    } else {
-                        binding.progressBar.setVisibility(View.GONE);
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    binding.progressBar.setVisibility(View.GONE);
-                    Toast.makeText(getContext(), "Failed to load user data", Toast.LENGTH_SHORT).show();
-                });
+        viewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
+                currentUserModel = user;
+                viewModel.ensureDefaultGroups(user);
+                
+                // Now observe other data
+                observeGroupsAndUsers();
+            } else {
+                binding.progressBar.setVisibility(View.GONE);
+                Toast.makeText(getContext(), "Failed to load user data", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
-    private void fetchGroupsAndContacts() {
-        groupsList.clear();
-        adminList.clear();
-        classmatesList.clear();
-
-        // A. Fetch/Ensure Groups
-        // Class Group
-        if (currentUserModel.getLevel() != null && !currentUserModel.getLevel().isEmpty()) {
-            String classGroupId = "class_" + currentUserModel.getLevel().replaceAll("\\s+", "");
-            ensureGroupExists(classGroupId, "Class " + currentUserModel.getLevel(), "CLASS");
-        }
-
-        // Club Groups
-        if (currentUserModel.getGroups() != null && !currentUserModel.getGroups().isEmpty()) {
-            String[] clubs = currentUserModel.getGroups().split(",");
-            for (String club : clubs) {
-                String clubName = club.trim();
-                if (!clubName.isEmpty()) {
-                    String clubGroupId = "club_" + clubName.replaceAll("\\s+", "");
-                    ensureGroupExists(clubGroupId, clubName + " Club", "CLUB");
+    private void observeGroupsAndUsers() {
+        // My Groups
+        viewModel.getMyGroups().observe(getViewLifecycleOwner(), groups -> {
+            groupsList.clear();
+            if (groups != null) {
+                for (Group group : groups) {
+                    groupsList.add(new ChatConversation(group));
                 }
             }
-        }
+            if (!isDiscoverTab) refreshAdapter();
+        });
 
-        // Alumni Group
-        if ("alumni".equalsIgnoreCase(currentUserModel.getRole())) {
-            ensureGroupExists("alumni_general", "Alumni General", "ALUMNI");
-        }
+        // Public Groups
+        viewModel.getPublicGroups().observe(getViewLifecycleOwner(), groups -> {
+            publicGroupsList.clear();
+            if (groups != null) {
+                for (Group group : groups) {
+                    publicGroupsList.add(new ChatConversation(group));
+                }
+            }
+            if (isDiscoverTab) refreshAdapter();
+        });
 
-        // B. Fetch Admins
-        db.collection("users")
-                .whereEqualTo("role", "admin")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        User user = doc.toObject(User.class);
-                        if (!user.getUid().equals(currentUserModel.getUid())) {
-                            adminList.add(new ChatConversation(user));
-                        }
+        // Event Groups
+        viewModel.getEventGroups().observe(getViewLifecycleOwner(), groups -> {
+            eventGroupsList.clear();
+            if (groups != null) {
+                for (Group group : groups) {
+                    eventGroupsList.add(new ChatConversation(group));
+                }
+            }
+            if (isDiscoverTab) refreshAdapter();
+        });
+
+        // Users (Admins & Classmates)
+        viewModel.getAllUsers().observe(getViewLifecycleOwner(), users -> {
+            adminList.clear();
+            classmatesList.clear();
+            if (users != null && currentUserModel != null) {
+                for (User u : users) {
+                    if ("admin".equalsIgnoreCase(u.getRole())) {
+                        adminList.add(new ChatConversation(u));
+                    } else if (u.getLevel() != null && u.getLevel().equals(currentUserModel.getLevel())) {
+                        classmatesList.add(new ChatConversation(u));
                     }
-                    if (!isDiscoverTab) refreshAdapter();
-                });
-
-        // C. Fetch Classmates
-        if (currentUserModel.getLevel() != null) {
-            db.collection("users")
-                    .whereEqualTo("level", currentUserModel.getLevel())
-                    .get()
-                    .addOnSuccessListener(queryDocumentSnapshots -> {
-                        for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                            User user = doc.toObject(User.class);
-                            // Exclude self and admins (already in admin list)
-                            if (!user.getUid().equals(currentUserModel.getUid()) && !"admin".equals(user.getRole())) {
-                                classmatesList.add(new ChatConversation(user));
-                            }
-                        }
-                        if (!isDiscoverTab) refreshAdapter();
-                    });
-        }
-    }
-
-    private void fetchDiscoverGroups() {
-        binding.progressBar.setVisibility(View.VISIBLE);
-        publicGroupsList.clear();
-        eventGroupsList.clear();
-
-        // Ensure at least one public group exists
-        ensureGroupExists("public_general", "School General", "PUBLIC");
-
-        // Fetch Public Groups
-        db.collection("groups")
-                .whereEqualTo("groupType", "PUBLIC")
-                .get()
-                .addOnSuccessListener(queryDocumentSnapshots -> {
-                    for (QueryDocumentSnapshot doc : queryDocumentSnapshots) {
-                        Group group = doc.toObject(Group.class);
-                        publicGroupsList.add(new ChatConversation(group));
-                    }
-                    
-                    // Fetch Event Groups
-                    db.collection("groups")
-                            .whereEqualTo("groupType", "EVENT")
-                            .get()
-                            .addOnSuccessListener(eventSnapshots -> {
-                                for (QueryDocumentSnapshot doc : eventSnapshots) {
-                                    Group group = doc.toObject(Group.class);
-                                    eventGroupsList.add(new ChatConversation(group));
-                                }
-                                if (isDiscoverTab) refreshAdapter();
-                            });
-                });
-    }
-
-    private void ensureGroupExists(String groupId, String groupName, String type) {
-        db.collection("groups").document(groupId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    Group group;
-                    if (documentSnapshot.exists()) {
-                        group = documentSnapshot.toObject(Group.class);
-                    } else {
-                        // Create Group
-                        List<String> members = new ArrayList<>();
-                        members.add(currentUserModel.getUid());
-                        List<String> admins = new ArrayList<>();
-                        
-                        group = new Group(groupId, groupName, null, type, members, admins);
-                        db.collection("groups").document(groupId).set(group);
-                    }
-                    
-                    if (group != null) {
-                        boolean exists = false;
-                        List<ChatConversation> targetList;
-                        
-                        if ("PUBLIC".equals(type)) {
-                            targetList = publicGroupsList;
-                        } else if ("EVENT".equals(type)) {
-                            targetList = eventGroupsList;
-                        } else {
-                            targetList = groupsList;
-                        }
-
-                        for(ChatConversation c : targetList) {
-                            if(c.getId().equals(group.getGroupId())) exists = true;
-                        }
-                        
-                        if(!exists) targetList.add(new ChatConversation(group));
-                        
-                        if (isDiscoverTab && ("PUBLIC".equals(type) || "EVENT".equals(type))) {
-                            refreshAdapter();
-                        } else if (!isDiscoverTab && !("PUBLIC".equals(type) || "EVENT".equals(type))) {
-                            refreshAdapter();
-                        }
-                    }
-                });
+                }
+            }
+            if (!isDiscoverTab) refreshAdapter();
+        });
     }
 
     private synchronized void refreshAdapter() {
@@ -326,9 +231,6 @@ public class ChatListFragment extends Fragment {
             if (!eventGroupsList.isEmpty()) {
                 conversationList.add(new ChatConversation("Events"));
                 conversationList.addAll(eventGroupsList);
-            }
-            if (publicGroupsList.isEmpty() && eventGroupsList.isEmpty()) {
-                // Maybe show empty state or "No public groups found"
             }
         } else {
             if (!groupsList.isEmpty()) {
@@ -347,7 +249,6 @@ public class ChatListFragment extends Fragment {
             }
         }
 
-        // Reset adapter to original list (in case search filter was active)
         conversationsAdapter = new ConversationsAdapter(getContext(), conversationList);
         binding.recyclerViewUsers.setAdapter(conversationsAdapter);
         

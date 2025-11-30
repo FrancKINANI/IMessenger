@@ -10,29 +10,21 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.util.HashMap;
-import java.util.Map;
 
 import I.imessenger.R;
-import I.imessenger.activities.LoginActivity;
 import I.imessenger.databinding.FragmentProfileBinding;
 import I.imessenger.models.User;
+import I.imessenger.viewmodels.ProfileViewModel;
 
 public class ProfileFragment extends Fragment {
 
     private FragmentProfileBinding binding;
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
-    private User currentUserModel;
+    private ProfileViewModel profileViewModel;
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -49,8 +41,7 @@ public class ProfileFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
 
         loadUserProfile();
 
@@ -62,55 +53,28 @@ public class ProfileFragment extends Fragment {
     }
 
     private void loadUserProfile() {
-        FirebaseUser currentUser = mAuth.getCurrentUser();
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
         if (currentUser != null) {
-            db.collection("users").document(currentUser.getUid()).get()
-                    .addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                        @Override
-                        public void onSuccess(DocumentSnapshot documentSnapshot) {
-                            if (documentSnapshot.exists()) {
-                                currentUserModel = documentSnapshot.toObject(User.class);
-                                populateUserData(currentUserModel);
-                            } else {
-                                // Fallback: Create user document if it doesn't exist
-                                createMissingUserDocument(currentUser);
-                            }
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            // Even if Firestore fails, show what we have from Auth
-                            binding.etEmail.setText(currentUser.getEmail());
-                            binding.etFullName.setText(currentUser.getDisplayName());
-                            Toast.makeText(getContext(), "Failed to load profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+            profileViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
+                if (user != null) {
+                    populateUserData(user);
+                } else {
+                    // Fallback: Create user document if it doesn't exist
+                    createMissingUserDocument(currentUser);
+                }
+            });
         }
     }
 
     private void createMissingUserDocument(FirebaseUser firebaseUser) {
-        User user = new User(
-                firebaseUser.getUid(),
-                firebaseUser.getEmail(),
-                firebaseUser.getDisplayName() != null ? firebaseUser.getDisplayName() : "New User",
-                "Student", // Default
-                "1st Year", // Default
-                firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "",
-                "",
-                ""
-        );
-
-        db.collection("users").document(firebaseUser.getUid())
-                .set(user)
-                .addOnSuccessListener(aVoid -> {
-                    currentUserModel = user;
-                    populateUserData(user);
-                    Toast.makeText(getContext(), "Profile created", Toast.LENGTH_SHORT).show();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to create profile", Toast.LENGTH_SHORT).show();
-                });
+        profileViewModel.createMissingUserDocument(firebaseUser).observe(getViewLifecycleOwner(), user -> {
+            if (user != null) {
+                populateUserData(user);
+                Toast.makeText(getContext(), "Profile created", Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), "Failed to create profile", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void populateUserData(User user) {
@@ -130,21 +94,12 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    private void enableEditing(boolean enable) {
-        // No longer needed
-    }
-
-    private void saveUserProfile() {
-        // No longer needed
-    }
-
     private final androidx.activity.result.ActivityResultLauncher<String> pickImage = registerForActivityResult(
             new androidx.activity.result.contract.ActivityResultContracts.GetContent(),
             uri -> {
                 if (uri != null) {
                     binding.ivProfileImage.setImageURI(uri);
                     // Upload to Firebase Storage would go here
-                    // For now, we just show it locally as a placeholder for the "upload" logic
                     Toast.makeText(getContext(), "Image selected (Upload logic to be implemented)", Toast.LENGTH_SHORT).show();
                 }
             }

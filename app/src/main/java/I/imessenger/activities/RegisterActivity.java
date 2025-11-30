@@ -3,34 +3,29 @@ package I.imessenger.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.view.View;
-import android.widget.Button;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.material.textfield.TextInputEditText;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Task;
 
 import I.imessenger.R;
 import I.imessenger.databinding.ActivityRegisterBinding;
-import I.imessenger.models.User; // Make sure 'models' matches your actual package name
+import I.imessenger.viewmodels.RegisterViewModel;
 
 public class RegisterActivity extends AppCompatActivity {
 
     private ActivityRegisterBinding binding;
-    private FirebaseAuth mAuth;
-    private FirebaseFirestore db;
+    private RegisterViewModel registerViewModel;
 
     private static final int RC_SIGN_IN = 9001;
-    private com.google.android.gms.auth.api.signin.GoogleSignInClient mGoogleSignInClient;
+    private GoogleSignInClient mGoogleSignInClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,36 +33,20 @@ public class RegisterActivity extends AppCompatActivity {
         binding = ActivityRegisterBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        mAuth = FirebaseAuth.getInstance();
-        db = FirebaseFirestore.getInstance();
+        registerViewModel = new ViewModelProvider(this).get(RegisterViewModel.class);
 
         // Configure Google Sign In
-        com.google.android.gms.auth.api.signin.GoogleSignInOptions gso = new com.google.android.gms.auth.api.signin.GoogleSignInOptions.Builder(com.google.android.gms.auth.api.signin.GoogleSignInOptions.DEFAULT_SIGN_IN)
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-        mGoogleSignInClient = com.google.android.gms.auth.api.signin.GoogleSignIn.getClient(this, gso);
+        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
 
-        binding.btnRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                registerUser();
-            }
-        });
+        binding.btnRegister.setOnClickListener(v -> registerUser());
 
-        binding.btnGoogleRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signInWithGoogle();
-            }
-        });
+        binding.btnGoogleRegister.setOnClickListener(v -> signInWithGoogle());
 
-        binding.tvLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish(); // Go back to Login Activity
-            }
-        });
+        binding.tvLogin.setOnClickListener(v -> finish());
     }
 
     private void signInWithGoogle() {
@@ -80,71 +59,26 @@ public class RegisterActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_SIGN_IN) {
-            com.google.android.gms.tasks.Task<com.google.android.gms.auth.api.signin.GoogleSignInAccount> task = com.google.android.gms.auth.api.signin.GoogleSignIn.getSignedInAccountFromIntent(data);
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             try {
-                com.google.android.gms.auth.api.signin.GoogleSignInAccount account = task.getResult(com.google.android.gms.common.api.ApiException.class);
+                GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account.getIdToken());
-            } catch (com.google.android.gms.common.api.ApiException e) {
+            } catch (ApiException e) {
                 Toast.makeText(this, "Google sign in failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
     }
 
     private void firebaseAuthWithGoogle(String idToken) {
-        com.google.firebase.auth.AuthCredential credential = com.google.firebase.auth.GoogleAuthProvider.getCredential(idToken, null);
-        mAuth.signInWithCredential(credential)
-                .addOnCompleteListener(this, new com.google.android.gms.tasks.OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull com.google.android.gms.tasks.Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            checkUserInFirestore(user);
-                        } else {
-                            Toast.makeText(RegisterActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
-    private void checkUserInFirestore(FirebaseUser firebaseUser) {
-        db.collection("users").document(firebaseUser.getUid()).get()
-                .addOnSuccessListener(new OnSuccessListener<com.google.firebase.firestore.DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(com.google.firebase.firestore.DocumentSnapshot documentSnapshot) {
-                        if (documentSnapshot.exists()) {
-                            // User exists, go to Main
-                            startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                            finishAffinity();
-                        } else {
-                            // New user, save to Firestore
-                            saveUserToFirestoreGoogle(firebaseUser);
-                        }
-                    }
-                });
-    }
-
-    private void saveUserToFirestoreGoogle(FirebaseUser firebaseUser) {
-        User user = new User(
-                firebaseUser.getUid(),
-                firebaseUser.getEmail(),
-                firebaseUser.getDisplayName(),
-                "student",
-                "1st Year",
-                firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "",
-                "",
-                "" // groups
-        );
-
-        db.collection("users").document(firebaseUser.getUid())
-                .set(user)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Toast.makeText(RegisterActivity.this, getString(R.string.register_success), Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                        finishAffinity();
-                    }
-                });
+        registerViewModel.loginWithGoogle(idToken).observe(this, success -> {
+            if (success) {
+                Toast.makeText(RegisterActivity.this, getString(R.string.register_success), Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                finishAffinity();
+            } else {
+                Toast.makeText(RegisterActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void registerUser() {
@@ -184,56 +118,14 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-                    @Override
-                    public void onSuccess(AuthResult authResult) {
-                        saveUserToFirestore(authResult.getUser(), name, role, level);
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (e instanceof com.google.firebase.auth.FirebaseAuthUserCollisionException) {
-                            binding.etEmail.setError(getString(R.string.email_already_exists));
-                            binding.etEmail.requestFocus();
-                            Toast.makeText(RegisterActivity.this, getString(R.string.email_already_exists), Toast.LENGTH_LONG).show();
-                        } else {
-                            Toast.makeText(RegisterActivity.this, getString(R.string.register_failed, e.getMessage()), Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-    }
-
-    private void saveUserToFirestore(FirebaseUser firebaseUser, String name, String role, String level) {
-        if (firebaseUser == null) return;
-
-        User user = new User(
-                firebaseUser.getUid(),
-                firebaseUser.getEmail(),
-                name,
-                role,
-                level,
-                "", // No profile image initially
-                "", // No FCM token initially
-                "" // No groups initially
-        );
-
-        db.collection("users").document(firebaseUser.getUid())
-                .set(user)
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void unused) {
-                        Toast.makeText(RegisterActivity.this, getString(R.string.register_success), Toast.LENGTH_SHORT).show();
-                        startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                        finishAffinity(); // Clear back stack
-                    }
-                })
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(RegisterActivity.this, getString(R.string.save_user_failed, e.getMessage()), Toast.LENGTH_SHORT).show();
-                    }
-                });
+        registerViewModel.register(email, password, name, role, level).observe(this, success -> {
+            if (success) {
+                Toast.makeText(RegisterActivity.this, getString(R.string.register_success), Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(RegisterActivity.this, MainActivity.class));
+                finishAffinity();
+            } else {
+                Toast.makeText(RegisterActivity.this, "Registration Failed.", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
