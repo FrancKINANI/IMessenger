@@ -6,6 +6,7 @@
 - **Team**: 3 Developers
 - **Duration**: 3 Months
 - **Tech Stack**: Android (Java), Firebase (Auth, Firestore, Storage, FCM)
+- **Architecture**: MVVM (Model-View-ViewModel)
 
 ---
 
@@ -15,28 +16,29 @@ The goal is to centralize ISMAGI student life into a single application. More th
 
 ---
 
-## 2. Technical Architecture (Firebase)
+## 2. Technical Architecture (Firebase & MVVM)
 
-To meet the 3-month deadline, a **Serverless architecture** is imperative:
+To meet the 3-month deadline and ensure code maintainability, we use a **Serverless architecture** combined with **MVVM**:
 
-- **Authentication**: Firebase Auth (Strict restriction to `@ismagi.ma` emails or authorized domains)
-- **Database**: Cloud Firestore (NoSQL). Flexible structure for chats and posts
-- **File Storage**: Firebase Storage (Course PDFs, profile images, feed photos)
-- **Notifications**: Firebase Cloud Messaging (FCM)
-- **Backend Logic (Optional)**: Cloud Functions (if complex server logic is needed, e.g., automatic cleanup)
+-   **Architecture**: MVVM (Model-View-ViewModel) using Android Jetpack components (ViewModel, LiveData).
+-   **Authentication**: Firebase Auth (Strict restriction to `@ismagi.ma` emails or authorized domains).
+-   **Database**: Cloud Firestore (NoSQL). Flexible structure for chats and posts.
+-   **File Storage**: Firebase Storage (Course PDFs, profile images, feed photos).
+-   **Notifications**: Firebase Cloud Messaging (FCM).
+-   **Backend Logic (Optional)**: Cloud Functions (if complex server logic is needed).
 
 ---
 
 ## 3. Role Distribution (Suggestion for 3 people)
 
 ### Dev A (Lead Backend & Chat)
-- Firestore architecture
+- Firestore architecture & Repositories
 - Authentication management
 - Real-time chat logic (1-1 messaging, groups)
 - Security
 
 ### Dev B (Lead UI/UX & Social)
-- Interface design (XML)
+- Interface design (XML) & ViewModels
 - News Feed
 - User Profiles
 - Media management (images/videos)
@@ -44,7 +46,7 @@ To meet the 3-month deadline, a **Serverless architecture** is imperative:
 ### Dev C (Lead Features & Tools)
 - Calendar
 - Document drive
-- Polls,Manage calls for project(Students or professors launching projects can inform and get others who want to work with them: good way to find partners etc.)
+- Polls, Manage calls for project
 - Geolocation
 - Video API integration (Zoom/Meet)
 
@@ -57,23 +59,27 @@ To meet the 3-month deadline, a **Serverless architecture** is imperative:
 **Objective**: By the end of the month, users must be able to log in and chat.
 
 #### Week 1: Setup & Auth
-- [ ] Android Studio & Firebase configuration
-- [ ] Splash Screen (with animated logo)
-- [ ] Login/Register: ISMAGI email verification
-- [ ] Profile Creation (Student/Prof, Major, Year)
+- [x] Android Studio & Firebase configuration
+- [x] Splash Screen (with animated logo)
+- [x] Login/Register: ISMAGI email verification
+- [x] Profile Creation (Student/Prof, Major, Year)
+- [x] MVVM Architecture Setup (Repositories, ViewModels)
 
 #### Week 2: User List & Structure
-- [ ] Display list of students/profs (RecyclerView)
-- [ ] Bottom Navigation Bar (Chat, Feed, Tools, Profile)
+- [x] Display list of students/profs (RecyclerView)
+- [x] Bottom Navigation Bar (Chat, Feed, Tools, Profile)
+- [x] Dark Mode Implementation
 
 #### Week 3: Instant Messaging (Base)
-- [ ] Real-time 1-to-1 Chat
-- [ ] Status (Online/Offline)
-- [ ] Message bubble design (similar to WhatsApp/Telegram)
+- [x] Real-time 1-to-1 Chat
+- [x] Status (Online/Offline)
+- [x] Message bubble design (similar to WhatsApp/Telegram)
+- [x] Push Notifications (FCM)
 
 #### Week 4: Basic Groups
-- [ ] Group creation
+- [x] Group creation (Admin managed)
 - [ ] Sending images in chat
+- [x] Public & Event Channels
 
 ---
 
@@ -96,6 +102,8 @@ To meet the 3-month deadline, a **Serverless architecture** is imperative:
 - [ ] Push Notifications implementation (New message, New grade)
 
 #### Week 8: Advanced Profiles & Skills
+- [x] Edit Profile (Settings)
+- [x] View other user profiles
 - [ ] Add "Mini-CV" to profile
 - [ ] "Clubs" section (Join a club)
 
@@ -110,7 +118,7 @@ To meet the 3-month deadline, a **Serverless architecture** is imperative:
 - [ ] Video link integration ("Start a Meet" button opening Google Meet app with a pre-generated code)
 
 #### Week 10: Alumni & Geolocation
-- [ ] "Alumni" space (specific filter)
+- [x] "Alumni" space (specific filter)
 - [ ] Campus map (Google Maps API with custom markers for rooms)
 
 #### Week 11: Admin & Moderation
@@ -130,7 +138,7 @@ To meet the 3-month deadline, a **Serverless architecture** is imperative:
 
 **Design**: Don't copy WhatsApp exactly. Use Google's "Material Design 3" for a more modern touch.
 
-**Technique**: Use Firestore `SnapshotListener` to listen for messages in real-time without reloading the page.
+**Technique**: Use Firestore `SnapshotListener` within `ChatRepository` to listen for messages in real-time without reloading the page. Expose data via `LiveData` in `ChatViewModel`.
 
 ### B. The "Student LinkedIn" (Profiles)
 
@@ -153,6 +161,7 @@ Your current icon (the blue bubble with the "I") is a very good base, simple and
 - **Primary**: ISMAGI Blue (Dark Royal Blue)
 - **Secondary**: An orange or yellow for notifications/important actions (contrast)
 - **Background**: White or very light gray (`#F5F5F5`) for cleanliness
+- **Dark Mode**: Slate/Dark Blue background with light text.
 
 #### Logo
 Keep the "I" but try slightly rounding the edges of the square to make it more "organic" (iOS/OneUI style).
@@ -183,6 +192,7 @@ Keep the "I" but try slightly rounding the edges of the square to make it more "
 - Document your code
 - Keep UI/UX consistent across all screens
 - Optimize for performance from the start
+- **Stick to MVVM**: Keep logic out of Activities/Fragments.
 
 ---
 

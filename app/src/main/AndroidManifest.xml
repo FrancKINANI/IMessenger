@@ -16,7 +16,7 @@
         
         <activity
             android:name=".activities.SplashActivity"
-            android:exported="true"> <!-- Theme inherited from App (NoActionBar) -->
+            android:exported="true"> 
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

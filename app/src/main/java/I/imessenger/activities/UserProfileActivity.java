@@ -6,18 +6,19 @@ import android.view.View;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
-import com.google.firebase.firestore.FirebaseFirestore;
 
 import I.imessenger.R;
 import I.imessenger.databinding.ActivityUserProfileBinding;
 import I.imessenger.models.User;
+import I.imessenger.viewmodels.ProfileViewModel;
 
 public class UserProfileActivity extends AppCompatActivity {
 
     private ActivityUserProfileBinding binding;
-    private FirebaseFirestore db;
+    private ProfileViewModel profileViewModel;
     private User userModel;
     private String userId;
 
@@ -33,6 +34,8 @@ public class UserProfileActivity extends AppCompatActivity {
             return;
         }
 
+        profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
+
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -40,7 +43,6 @@ public class UserProfileActivity extends AppCompatActivity {
         }
         binding.toolbar.setNavigationOnClickListener(v -> finish());
 
-        db = FirebaseFirestore.getInstance();
         loadUserProfile();
 
         binding.btnMessage.setOnClickListener(v -> {
@@ -56,21 +58,16 @@ public class UserProfileActivity extends AppCompatActivity {
 
     private void loadUserProfile() {
         binding.progressBar.setVisibility(View.VISIBLE);
-        db.collection("users").document(userId).get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    binding.progressBar.setVisibility(View.GONE);
-                    if (documentSnapshot.exists()) {
-                        userModel = documentSnapshot.toObject(User.class);
-                        populateUserData(userModel);
-                    } else {
-                        Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                })
-                .addOnFailureListener(e -> {
-                    binding.progressBar.setVisibility(View.GONE);
-                    Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show();
-                });
+        profileViewModel.getUser(userId).observe(this, user -> {
+            binding.progressBar.setVisibility(View.GONE);
+            if (user != null) {
+                userModel = user;
+                populateUserData(user);
+            } else {
+                Toast.makeText(this, "User not found", Toast.LENGTH_SHORT).show();
+                finish();
+            }
+        });
     }
 
     private void populateUserData(User user) {

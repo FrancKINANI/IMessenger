@@ -4,20 +4,23 @@ import android.content.Intent;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
-
-import com.google.firebase.auth.FirebaseAuth;
+import androidx.lifecycle.ViewModelProvider;
 
 import I.imessenger.databinding.ActivitySettingsBinding;
+import I.imessenger.viewmodels.SettingsViewModel;
 
 public class SettingsActivity extends AppCompatActivity {
 
     private ActivitySettingsBinding binding;
+    private SettingsViewModel settingsViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivitySettingsBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        settingsViewModel = new ViewModelProvider(this).get(SettingsViewModel.class);
 
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null) {
@@ -42,12 +45,11 @@ public class SettingsActivity extends AppCompatActivity {
             } else {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
             }
-            // Save preference if needed (SharedPreferences) - for now just toggle
         });
 
         // Logout
         binding.btnLogout.setOnClickListener(v -> {
-            FirebaseAuth.getInstance().signOut();
+            settingsViewModel.logout();
             Intent intent = new Intent(this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
