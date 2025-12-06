@@ -25,4 +25,8 @@
     <string name="type_message">Type a message...</string>
     <string name="default_web_client_id">519173078520-th22fnjd76u87d15r72vg6aunqd3edr8.apps.googleusercontent.com</string>
     <string name="email_already_exists">This email is already registered. Please log in.</string>
+    <string name="forgot_password_title">Forgot Password?</string>
+    <string name="reset_password">Reset Password</string>
+    <string name="reset_password_instruction">Enter your email address to receive a password reset link.</string>
+    <string name="back_to_login">Back to Login</string>
 </resources>

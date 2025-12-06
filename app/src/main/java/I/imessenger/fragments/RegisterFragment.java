@@ -1,12 +1,19 @@
-package I.imessenger.activities;
+package I.imessenger.fragments;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -16,23 +23,29 @@ import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.Task;
 
 import I.imessenger.R;
-import I.imessenger.databinding.ActivityRegisterBinding;
+import I.imessenger.databinding.FragmentRegisterBinding;
 import I.imessenger.viewmodels.RegisterViewModel;
 
-public class RegisterActivity extends AppCompatActivity {
+public class RegisterFragment extends Fragment {
 
-    private ActivityRegisterBinding binding;
+    private FragmentRegisterBinding binding;
     private RegisterViewModel registerViewModel;
+    private NavController navController;
 
     private static final int RC_SIGN_IN = 9001;
     private GoogleSignInClient mGoogleSignInClient;
 
+    @Nullable
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = ActivityRegisterBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = FragmentRegisterBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        navController = Navigation.findNavController(view);
         registerViewModel = new ViewModelProvider(this).get(RegisterViewModel.class);
 
         // Configure Google Sign In
@@ -40,13 +53,13 @@ public class RegisterActivity extends AppCompatActivity {
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso);
 
         binding.btnRegister.setOnClickListener(v -> registerUser());
 
         binding.btnGoogleRegister.setOnClickListener(v -> signInWithGoogle());
 
-        binding.tvLogin.setOnClickListener(v -> finish());
+        binding.tvLogin.setOnClickListener(v -> navController.navigate(R.id.action_registerFragment_to_loginFragment));
     }
 
     private void signInWithGoogle() {
@@ -64,19 +77,18 @@ public class RegisterActivity extends AppCompatActivity {
                 GoogleSignInAccount account = task.getResult(ApiException.class);
                 firebaseAuthWithGoogle(account.getIdToken());
             } catch (ApiException e) {
-                Toast.makeText(this, "Google sign in failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Google sign in failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         }
     }
 
     private void firebaseAuthWithGoogle(String idToken) {
-        registerViewModel.loginWithGoogle(idToken).observe(this, success -> {
+        registerViewModel.loginWithGoogle(idToken).observe(getViewLifecycleOwner(), success -> {
             if (success) {
-                Toast.makeText(RegisterActivity.this, getString(R.string.register_success), Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                finishAffinity();
+                Toast.makeText(requireContext(), getString(R.string.register_success), Toast.LENGTH_SHORT).show();
+                navController.navigate(R.id.action_registerFragment_to_homeFragment);
             } else {
-                Toast.makeText(RegisterActivity.this, "Authentication Failed.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Authentication Failed.", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -118,14 +130,19 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        registerViewModel.register(email, password, name, role, level).observe(this, success -> {
+        registerViewModel.register(email, password, name, role, level).observe(getViewLifecycleOwner(), success -> {
             if (success) {
-                Toast.makeText(RegisterActivity.this, getString(R.string.register_success), Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(RegisterActivity.this, MainActivity.class));
-                finishAffinity();
+                Toast.makeText(requireContext(), getString(R.string.register_success), Toast.LENGTH_SHORT).show();
+                navController.navigate(R.id.action_registerFragment_to_homeFragment);
             } else {
-                Toast.makeText(RegisterActivity.this, "Registration Failed.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), "Registration Failed.", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

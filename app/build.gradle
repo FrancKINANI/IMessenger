@@ -48,6 +48,8 @@ dependencies {
     annotationProcessor libs.glide.compiler
     implementation libs.circleimageview
     implementation libs.play.services.auth
+    implementation libs.navigation.fragment
+    implementation libs.navigation.ui
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
