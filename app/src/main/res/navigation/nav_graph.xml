@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/splashFragment"
-        android:name="I.imessenger.fragments.SplashFragment"
+        android:name="i.imessenger.fragments.SplashFragment"
         android:label="Splash"
         tools:layout="@layout/fragment_splash">
         <action
@@ -24,7 +24,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="I.imessenger.fragments.LoginFragment"
+        android:name="i.imessenger.fragments.LoginFragment"
         android:label="Login"
         tools:layout="@layout/fragment_login">
         <action
@@ -42,7 +42,7 @@
 
     <fragment
         android:id="@+id/registerFragment"
-        android:name="I.imessenger.fragments.RegisterFragment"
+        android:name="i.imessenger.fragments.RegisterFragment"
         android:label="Register"
         tools:layout="@layout/fragment_register">
         <action
@@ -57,7 +57,7 @@
 
     <fragment
         android:id="@+id/forgotPasswordFragment"
-        android:name="I.imessenger.fragments.ForgotPasswordFragment"
+        android:name="i.imessenger.fragments.ForgotPasswordFragment"
         android:label="Forgot Password"
         tools:layout="@layout/fragment_forgot_password">
         <action
@@ -69,25 +69,25 @@
 
     <fragment
         android:id="@+id/nav_chat"
-        android:name="I.imessenger.fragments.ChatListFragment"
+        android:name="i.imessenger.fragments.ChatListFragment"
         android:label="Chat"
         tools:layout="@layout/fragment_chat_list" />
 
     <fragment
         android:id="@+id/nav_feed"
-        android:name="I.imessenger.fragments.FeedFragment"
+        android:name="i.imessenger.fragments.FeedFragment"
         android:label="Feed"
         tools:layout="@layout/fragment_feed" />
 
     <fragment
         android:id="@+id/nav_tools"
-        android:name="I.imessenger.fragments.ToolsFragment"
+        android:name="i.imessenger.fragments.ToolsFragment"
         android:label="Tools"
         tools:layout="@layout/fragment_tools" />
 
     <fragment
         android:id="@+id/nav_profile"
-        android:name="I.imessenger.fragments.ProfileFragment"
+        android:name="i.imessenger.fragments.ProfileFragment"
         android:label="Profile"
         tools:layout="@layout/fragment_profile" />
 
