@@ -1,19 +1,19 @@
 package i.imessenger.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.navigation.Navigation;
+import android.os.Bundle;
 
 import com.bumptech.glide.Glide;
 
 import java.util.List;
 
 import i.imessenger.R;
-import i.imessenger.activities.ChatActivity;
 import i.imessenger.databinding.ItemUserBinding;
 import i.imessenger.models.User;
 
@@ -50,11 +50,11 @@ public class UsersAdapter extends RecyclerView.Adapter<UsersAdapter.UserViewHold
         }
 
         holder.itemView.setOnClickListener(v -> {
-            Intent intent = new Intent(context, ChatActivity.class);
-            intent.putExtra("userId", user.getUid());
-            intent.putExtra("userName", user.getFullName());
-            intent.putExtra("userImage", user.getProfileImage());
-            context.startActivity(intent);
+            Bundle bundle = new Bundle();
+            bundle.putString("userId", user.getUid());
+            bundle.putString("userName", user.getFullName());
+            bundle.putString("userImage", user.getProfileImage());
+            Navigation.findNavController(v).navigate(R.id.chatFragment, bundle);
         });
     }
 

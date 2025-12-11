@@ -1,27 +1,15 @@
 package i.imessenger.activities;
 
 import android.os.Bundle;
-import android.view.MenuItem;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.Fragment;
-
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
 
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.NavigationUI;
 import android.view.View;
 
-import com.google.firebase.auth.FirebaseAuth;
-
 import i.imessenger.R;
-import i.imessenger.fragments.ChatListFragment;
-import i.imessenger.fragments.FeedFragment;
-import i.imessenger.fragments.ProfileFragment;
-import i.imessenger.fragments.ToolsFragment;
 
 import i.imessenger.databinding.ActivityMainBinding;
 
@@ -47,7 +35,11 @@ public class MainActivity extends AppCompatActivity {
                 if (destination.getId() == R.id.splashFragment ||
                     destination.getId() == R.id.loginFragment || 
                     destination.getId() == R.id.registerFragment || 
-                    destination.getId() == R.id.forgotPasswordFragment) {
+                    destination.getId() == R.id.forgotPasswordFragment ||
+                    destination.getId() == R.id.chatFragment ||
+                    destination.getId() == R.id.editProfileFragment ||
+                    destination.getId() == R.id.settingsFragment ||
+                    destination.getId() == R.id.userProfileFragment) {
                     binding.bottomNavigation.setVisibility(View.GONE);
                 } else {
                     binding.bottomNavigation.setVisibility(View.VISIBLE);

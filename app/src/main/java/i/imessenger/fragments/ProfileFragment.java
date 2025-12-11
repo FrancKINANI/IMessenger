@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
@@ -46,7 +47,7 @@ public class ProfileFragment extends Fragment {
         loadUserProfile();
 
         binding.btnSettings.setOnClickListener(v -> {
-            startActivity(new Intent(getActivity(), i.imessenger.activities.SettingsActivity.class));
+            NavHostFragment.findNavController(this).navigate(R.id.settingsFragment);
         });
 
         binding.ivProfileImage.setOnClickListener(v -> pickImage.launch("image/*"));

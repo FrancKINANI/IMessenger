@@ -1,45 +1,52 @@
-package i.imessenger.activities;
+package i.imessenger.fragments;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 
 import com.bumptech.glide.Glide;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import i.imessenger.R;
-import i.imessenger.databinding.ActivityEditProfileBinding;
+import i.imessenger.databinding.FragmentEditProfileBinding;
 import i.imessenger.models.User;
 import i.imessenger.viewmodels.ProfileViewModel;
 
-public class EditProfileActivity extends AppCompatActivity {
+public class EditProfileFragment extends Fragment {
 
-    private ActivityEditProfileBinding binding;
+    private FragmentEditProfileBinding binding;
     private ProfileViewModel profileViewModel;
     private User currentUserModel;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = ActivityEditProfileBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        binding = FragmentEditProfileBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
         profileViewModel = new ViewModelProvider(this).get(ProfileViewModel.class);
 
-        setSupportActionBar(binding.toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowTitleEnabled(true);
-            getSupportActionBar().setTitle("Edit Profile");
+        // Toolbar setup done via XML usually or here
+        // Assuming toolbar is in layout
+        if (binding.toolbar != null) {
+            binding.toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).navigateUp());
+            binding.toolbar.setTitle("Edit Profile");
         }
-        binding.toolbar.setNavigationOnClickListener(v -> finish());
 
         loadUserProfile();
 
@@ -48,13 +55,13 @@ public class EditProfileActivity extends AppCompatActivity {
 
     private void loadUserProfile() {
         binding.progressBar.setVisibility(View.VISIBLE);
-        profileViewModel.getCurrentUser().observe(this, user -> {
+        profileViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
             binding.progressBar.setVisibility(View.GONE);
             if (user != null) {
                 currentUserModel = user;
                 populateUserData(user);
             } else {
-                Toast.makeText(this, "Failed to load profile", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Failed to load profile", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -90,14 +97,20 @@ public class EditProfileActivity extends AppCompatActivity {
         updates.put("level", newLevel);
         updates.put("groups", newGroups);
 
-        profileViewModel.updateUserProfile(currentUserModel.getUid(), updates).observe(this, success -> {
+        profileViewModel.updateUserProfile(currentUserModel.getUid(), updates).observe(getViewLifecycleOwner(), success -> {
             binding.progressBar.setVisibility(View.GONE);
             if (success) {
-                Toast.makeText(this, "Profile Updated", Toast.LENGTH_SHORT).show();
-                finish();
+                Toast.makeText(getContext(), "Profile Updated", Toast.LENGTH_SHORT).show();
+                NavHostFragment.findNavController(this).navigateUp();
             } else {
-                Toast.makeText(this, "Failed to update profile", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Failed to update profile", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

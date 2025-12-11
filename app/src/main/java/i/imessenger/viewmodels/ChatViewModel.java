@@ -76,4 +76,9 @@ public class ChatViewModel extends AndroidViewModel {
     private String getReadableDateTime(java.util.Date date) {
         return new java.text.SimpleDateFormat("MMMM dd, yyyy - hh:mm a", java.util.Locale.getDefault()).format(date);
     }
+    @Override
+    protected void onCleared() {
+        super.onCleared();
+        chatRepository.cleanup();
+    }
 }

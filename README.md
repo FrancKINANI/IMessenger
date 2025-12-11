@@ -19,10 +19,12 @@ IMessenger is a modern Android messaging application designed for school environ
 
 ## Architecture
 
-The application follows the **MVVM (Model-View-ViewModel)** architectural pattern to ensure separation of concerns, testability, and maintainability.
+The application follows the **MVVM (Model-View-ViewModel)** architectural pattern combined with the **Single Activity Architecture** recommended by Google. This ensures a robust, testable, and maintainable codebase.
 
+-   **Single Activity**: `MainActivity` serves as the entry point and container for the entire application, hosting various Fragments via the Navigation Component.
+-   **Navigation Component**: Manages app navigation, including the back stack, deep linking, and fragment transitions with animations.
 -   **Model**: Represents the data and business logic (e.g., `User`, `ChatMessage`, `Group`).
--   **View**: UI components (Activities, Fragments) that observe the ViewModel and update the UI.
+-   **View**: UI components (Fragments) that observe the ViewModel and update the UI.
 -   **ViewModel**: Acts as a bridge between the View and the Repository, holding UI-related data and handling logic.
 -   **Repository**: Manages data operations, abstracting the data sources (Firebase Firestore, Auth).
 
@@ -30,15 +32,17 @@ The application follows the **MVVM (Model-View-ViewModel)** architectural patter
 
 -   **Repositories**: `AuthRepository`, `ChatRepository`, `UserRepository`.
 -   **ViewModels**: `LoginViewModel`, `RegisterViewModel`, `ChatListViewModel`, `ChatViewModel`, `ProfileViewModel`.
--   **Activities/Fragments**: `LoginActivity`, `MainActivity`, `ChatActivity`, `ProfileFragment`, etc.
+-   **Fragments**: `LoginFragment`, `ChatListFragment`, `ChatFragment`, `ProfileFragment`, `SettingsFragment`, etc.
+-   **Navigation**: `nav_graph.xml` defines the application flow and transitions.
 
 ## Tech Stack
 
 -   **Language**: Java
 -   **Backend**: Firebase (Authentication, Firestore, Storage, Cloud Messaging)
--   **UI**: XML Layouts, Material Design Components
+-   **UI**: XML Layouts, Material Design Components (Material 3 recommended), AndroidX
+-   **Navigation**: Android Jetpack Navigation Component
 -   **Image Loading**: Glide
--   **Architecture**: MVVM, Android Jetpack (ViewModel, LiveData, ViewBinding)
+-   **Architecture**: MVVM, Single Activity, Android Jetpack (ViewModel, LiveData, ViewBinding)
 
 ## Setup
 

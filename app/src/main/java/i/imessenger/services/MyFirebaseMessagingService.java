@@ -16,7 +16,7 @@ import com.google.firebase.messaging.RemoteMessage;
 import java.util.Random;
 
 import i.imessenger.R;
-import i.imessenger.activities.ChatActivity;
+
 import i.imessenger.activities.MainActivity;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {

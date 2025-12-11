@@ -1,12 +1,16 @@
-package i.imessenger.activities;
+package i.imessenger.fragments;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.navigation.fragment.NavHostFragment;
 
-import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
@@ -14,13 +18,13 @@ import java.util.List;
 
 import i.imessenger.R;
 import i.imessenger.adapters.ChatAdapter;
-import i.imessenger.databinding.ActivityChatBinding;
+import i.imessenger.databinding.FragmentChatBinding;
 import i.imessenger.models.ChatMessage;
 import i.imessenger.viewmodels.ChatViewModel;
 
-public class ChatActivity extends AppCompatActivity {
+public class ChatFragment extends Fragment {
 
-    private ActivityChatBinding binding;
+    private FragmentChatBinding binding;
     private List<ChatMessage> chatMessages;
     private ChatAdapter chatAdapter;
     private ChatViewModel chatViewModel;
@@ -29,39 +33,41 @@ public class ChatActivity extends AppCompatActivity {
     private String groupId;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = ActivityChatBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        binding = FragmentChatBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
 
-        receiverUserId = getIntent().getStringExtra("userId");
-        groupId = getIntent().getStringExtra("groupId");
-        String userName = getIntent().getStringExtra("userName");
-        String userImage = getIntent().getStringExtra("userImage");
-        currentUserId = FirebaseAuth.getInstance().getUid();
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-        chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
+        if (getArguments() != null) {
+            receiverUserId = getArguments().getString("userId");
+            groupId = getArguments().getString("groupId");
+            String userName = getArguments().getString("userName");
+            String userImage = getArguments().getString("userImage");
 
-        setSupportActionBar(binding.toolbar);
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowTitleEnabled(false);
-        }
-        binding.toolbar.setNavigationOnClickListener(v -> finish());
-
-        if (userName != null) {
-            binding.setReceiverName(userName);
+            if (userName != null) {
+                binding.setReceiverName(userName);
+            }
+            binding.setReceiverImage(userImage);
         }
         
-        binding.setReceiverImage(userImage);
-        // binding.setViewModel(chatViewModel);
+        currentUserId = FirebaseAuth.getInstance().getUid();
+        chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
+
+        binding.toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).navigateUp());
+
+        // binding.setViewModel(chatViewModel); // Uncomment if binding layout supports it
         binding.setIsLoading(true);
 
         init();
         
         chatViewModel.initChat(receiverUserId, groupId);
         
-        chatViewModel.getMessages().observe(this, messages -> {
+        chatViewModel.getMessages().observe(getViewLifecycleOwner(), messages -> {
             if (messages != null) {
                 int count = chatMessages.size();
                 chatMessages.clear();
@@ -76,10 +82,9 @@ public class ChatActivity extends AppCompatActivity {
         });
 
         if (groupId != null) {
-            chatViewModel.getGroupInfo(groupId).observe(this, group -> {
+            chatViewModel.getGroupInfo(groupId).observe(getViewLifecycleOwner(), group -> {
                 if (group != null && group.getBlockedMembers() != null && group.getBlockedMembers().contains(currentUserId)) {
                     binding.layoutSend.setVisibility(View.GONE);
-                    // Optionally show a toast or a message saying "You are blocked"
                 } else {
                     binding.layoutSend.setVisibility(View.VISIBLE);
                 }
@@ -102,9 +107,15 @@ public class ChatActivity extends AppCompatActivity {
 
         chatViewModel.sendMessage(
             binding.inputMessage.getText().toString(),
-            null, null, null // Conversion info not strictly needed for basic chat
+            null, null, null
         );
         
         binding.inputMessage.setText(null);
+    }
+    
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 }

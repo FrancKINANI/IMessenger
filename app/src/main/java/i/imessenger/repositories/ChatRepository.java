@@ -31,6 +31,7 @@ public class ChatRepository {
     private final String currentUserId;
     private final AppDatabase database;
     private final ExecutorService executorService;
+    private com.google.firebase.firestore.ListenerRegistration chatListener;
 
     public ChatRepository(Context context) {
         db = FirebaseFirestore.getInstance();
@@ -193,20 +194,81 @@ public class ChatRepository {
     }
 
     public void syncMessages(String receiverId, String groupId) {
+        if (chatListener != null) {
+            chatListener.remove();
+            chatListener = null;
+        }
+
         if (groupId != null) {
-            db.collection("chat")
+            chatListener = db.collection("chat")
                     .whereEqualTo("groupId", groupId)
                     .addSnapshotListener(this::handleSnapshot);
         } else if (receiverId != null && currentUserId != null) {
-             db.collection("chat")
-                    .whereEqualTo("senderId", currentUserId)
-                    .whereEqualTo("receiverId", receiverId)
-                    .addSnapshotListener(this::handleSnapshot);
-             db.collection("chat")
-                    .whereEqualTo("senderId", receiverId)
-                    .whereEqualTo("receiverId", currentUserId)
-                    .addSnapshotListener(this::handleSnapshot);
+             // For 1-to-1 chat, logic is tricky with single query.
+             // We can only listen to one query effectively or we need composite query.
+             // But usually we need two listeners (sent by me AND sent by them).
+             // To simplify and avoid duplicates from multiple listeners, 
+             // we should use a composite ID or handle it carefully.
+             // However, for now, let's just listen to messages involving both users.
+             // Ideally: where(users array-contains currentUID)
+             
+             // The previous code had TWO listeners. This is bad for 'chatListener' variable.
+             // Let's optimize: Chat messages usually have a 'conversationId' or we sort client side?
+             // Or we just listen to two queries?
+             
+             // If we use TWO listeners, we need a list of registrations.
+             // Let's switch to using 'or' query if possible or manage list.
+             // Firestore 'in' query supports up to 10.
+             
+             // Actually, if we use a unique conversation ID for 1-1 chat, we only need one listener.
+             // If not, we have to stick with what we have but manage it better.
+             
+             // Simplest fix for now: Create a unique conversation ID logic if possible, 
+             // BUT simply managing the listener variable assumes one listener.
+             // Let's stick to the previous implementation logic but clear previous listeners.
+             
+             // Since the original code added TWO listeners for 1-1 chat, 
+             // assigning to 'chatListener' would overwrite the first one.
+             // We need a LIST of listeners.
+             
+             registerPrivateChatListeners(receiverId);
         }
+    }
+
+    private List<com.google.firebase.firestore.ListenerRegistration> listenerRegistrations = new ArrayList<>();
+
+    private void registerPrivateChatListeners(String receiverId) {
+        // Clear previous
+        removeListeners();
+        
+        // Listen sent by me
+        listenerRegistrations.add(db.collection("chat")
+            .whereEqualTo("senderId", currentUserId)
+            .whereEqualTo("receiverId", receiverId)
+            .addSnapshotListener(this::handleSnapshot));
+            
+        // Listen sent by them
+        listenerRegistrations.add(db.collection("chat")
+            .whereEqualTo("senderId", receiverId)
+            .whereEqualTo("receiverId", currentUserId)
+            .addSnapshotListener(this::handleSnapshot));
+    }
+    
+    // Update syncMessages to use removeListeners logic
+    
+    public void cleanup() {
+        removeListeners();
+    }
+    
+    private void removeListeners() {
+        if (chatListener != null) {
+            chatListener.remove();
+            chatListener = null;
+        }
+        for (com.google.firebase.firestore.ListenerRegistration reg : listenerRegistrations) {
+            reg.remove();
+        }
+        listenerRegistrations.clear();
     }
     
     private void handleSnapshot(com.google.firebase.firestore.QuerySnapshot value, com.google.firebase.firestore.FirebaseFirestoreException error) {
@@ -216,6 +278,7 @@ public class ChatRepository {
             for (DocumentChange documentChange : value.getDocumentChanges()) {
                 if (documentChange.getType() == DocumentChange.Type.ADDED) {
                     ChatMessage chatMessage = documentChange.getDocument().toObject(ChatMessage.class);
+                    chatMessage.id = documentChange.getDocument().getId();
                     // Decrypt
                     try {
                         chatMessage.message = EncryptionUtils.decrypt(chatMessage.message);

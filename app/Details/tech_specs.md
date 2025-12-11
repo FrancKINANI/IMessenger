@@ -7,8 +7,9 @@ The project adopts the MVVM architecture to promote a clean separation of concer
 ### Components
 
 1.  **View (UI Layer)**:
-    *   **Activities**: `LoginActivity`, `RegisterActivity`, `MainActivity`, `ChatActivity`, `SettingsActivity`, `EditProfileActivity`, `UserProfileActivity`.
-    *   **Fragments**: `ChatListFragment`, `ProfileFragment`.
+    *   **Activity**: `MainActivity` (Single Activity Container).
+    *   **Fragments**: `LoginFragment`, `RegisterFragment`, `ChatListFragment`, `ChatFragment`, `ProfileFragment`, `SettingsFragment`, `EditProfileFragment`, `UserProfileFragment`.
+    *   **Navigation**: Managed by Jetpack Navigation Component (`nav_graph.xml`).
     *   **Responsibility**: Display data to the user and capture user interactions. They observe `LiveData` from ViewModels and update the UI accordingly.
 
 2.  **ViewModel (Presentation Logic)**:

@@ -9,8 +9,9 @@ import i.imessenger.models.ChatMessage;
 
 @Entity(tableName = "chat_messages")
 public class ChatMessageEntity {
-    @PrimaryKey(autoGenerate = true)
-    public int id;
+    @PrimaryKey
+    @androidx.annotation.NonNull
+    public String id;
     
     public String senderId;
     public String receiverId;
@@ -26,6 +27,7 @@ public class ChatMessageEntity {
 
     // Constructor to convert from Firestore model
     public ChatMessageEntity(ChatMessage chatMessage) {
+        this.id = chatMessage.id;
         this.senderId = chatMessage.senderId;
         this.receiverId = chatMessage.receiverId;
         this.message = chatMessage.message;
@@ -39,6 +41,7 @@ public class ChatMessageEntity {
 
     public ChatMessage toChatMessage() {
         ChatMessage chatMessage = new ChatMessage();
+        chatMessage.id = this.id;
         chatMessage.senderId = this.senderId;
         chatMessage.receiverId = this.receiverId;
         chatMessage.message = this.message;

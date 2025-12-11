@@ -1,19 +1,20 @@
 package i.imessenger.adapters;
 
 import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import androidx.navigation.Navigation;
+import android.os.Bundle;
+
 import com.bumptech.glide.Glide;
 
 import java.util.List;
 
 import i.imessenger.R;
-import i.imessenger.activities.ChatActivity;
 import i.imessenger.databinding.ItemHeaderBinding;
 import i.imessenger.databinding.ItemConversationModernBinding;
 import i.imessenger.models.ChatConversation;
@@ -72,19 +73,19 @@ public class ConversationsAdapter extends RecyclerView.Adapter<RecyclerView.View
 
             vh.itemView.setOnClickListener(v -> {
                 if (conversation.getType() == ChatConversation.TYPE_USER && isSearchMode) {
-                    Intent intent = new Intent(context, i.imessenger.activities.UserProfileActivity.class);
-                    intent.putExtra("userId", conversation.getId());
-                    context.startActivity(intent);
+                    Bundle bundle = new Bundle();
+                    bundle.putString("userId", conversation.getId());
+                    Navigation.findNavController(v).navigate(R.id.userProfileFragment, bundle);
                 } else {
-                    Intent intent = new Intent(context, ChatActivity.class);
+                    Bundle bundle = new Bundle();
                     if (conversation.getType() == ChatConversation.TYPE_GROUP) {
-                        intent.putExtra("groupId", conversation.getId());
+                        bundle.putString("groupId", conversation.getId());
                     } else {
-                        intent.putExtra("userId", conversation.getId());
+                        bundle.putString("userId", conversation.getId());
                     }
-                    intent.putExtra("userName", conversation.getName());
-                    intent.putExtra("userImage", conversation.getImage());
-                    context.startActivity(intent);
+                    bundle.putString("userName", conversation.getName());
+                    bundle.putString("userImage", conversation.getImage());
+                    Navigation.findNavController(v).navigate(R.id.chatFragment, bundle);
                 }
             });
         }
