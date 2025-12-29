@@ -39,6 +39,7 @@ android {
 dependencies {
     implementation libs.appcompat
     implementation libs.material
+    implementation 'androidx.gridlayout:gridlayout:1.0.0'
     implementation platform(libs.firebase.bom)
     implementation libs.firebase.auth
     implementation libs.firebase.firestore

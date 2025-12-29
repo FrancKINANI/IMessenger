@@ -123,7 +123,29 @@
         android:id="@+id/nav_tools"
         android:name="i.imessenger.fragments.ToolsFragment"
         android:label="Tools"
-        tools:layout="@layout/fragment_tools" />
+        tools:layout="@layout/fragment_tools">
+        <action
+            android:id="@+id/action_nav_tools_to_calendarFragment"
+            app:destination="@id/calendarFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_nav_tools_to_projectsFragment"
+            app:destination="@id/projectsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+        <action
+            android:id="@+id/action_nav_tools_to_pollsFragment"
+            app:destination="@id/pollsFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
+    </fragment>
 
     <fragment
         android:id="@+id/nav_profile"
@@ -199,5 +221,23 @@
             app:popEnterAnim="@anim/slide_in_left"
             app:popExitAnim="@anim/slide_out_right" />
     </fragment>
+
+    <fragment
+        android:id="@+id/calendarFragment"
+        android:name="i.imessenger.fragments.CalendarFragment"
+        android:label="Calendar"
+        tools:layout="@layout/fragment_calendar" />
+
+    <fragment
+        android:id="@+id/projectsFragment"
+        android:name="i.imessenger.fragments.ProjectsFragment"
+        android:label="Projects"
+        tools:layout="@layout/fragment_projects" />
+
+    <fragment
+        android:id="@+id/pollsFragment"
+        android:name="i.imessenger.fragments.PollsFragment"
+        android:label="Polls"
+        tools:layout="@layout/fragment_polls" />
 
 </navigation>

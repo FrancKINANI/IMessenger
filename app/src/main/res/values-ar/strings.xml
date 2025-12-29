@@ -25,4 +25,69 @@
     <string name="sign_in_google">تسجيل الدخول عبر جوجل</string>
     <string name="type_message">اكتب رسالة...</string>
     <string name="email_already_exists">هذا البريد الإلكتروني مسجل بالفعل. الرجاء تسجيل الدخول.</string>
+    <string name="forgot_password_title">نسيت كلمة المرور؟</string>
+    <string name="reset_password">إعادة تعيين كلمة المرور</string>
+    <string name="reset_password_instruction">أدخل بريدك الإلكتروني لتلقي رابط إعادة التعيين.</string>
+    <string name="back_to_login">العودة لتسجيل الدخول</string>
+
+    <!-- Tools Section -->
+    <string name="tools">الأدوات</string>
+    <string name="quick_access">الوصول السريع</string>
+    <string name="calendar">التقويم</string>
+    <string name="events_schedule">الأحداث والجدول</string>
+    <string name="projects">المشاريع</string>
+    <string name="groups_clubs">المجموعات والنوادي</string>
+    <string name="polls">استطلاعات الرأي</string>
+    <string name="vote_survey">التصويت والاستبيانات</string>
+    <string name="more">المزيد</string>
+    <string name="coming_soon">قريباً</string>
+    <string name="upcoming_events">الأحداث القادمة</string>
+    <string name="no_upcoming_events">لا توجد أحداث قادمة</string>
+
+    <!-- Calendar -->
+    <string name="add_event">إضافة حدث</string>
+    <string name="event_title">عنوان الحدث</string>
+    <string name="event_description">الوصف (اختياري)</string>
+    <string name="start_date">تاريخ البدء</string>
+    <string name="start_time">وقت البدء</string>
+    <string name="end_date">تاريخ الانتهاء</string>
+    <string name="end_time">وقت الانتهاء</string>
+    <string name="event_type">نوع الحدث</string>
+    <string name="personal_event">حدث شخصي</string>
+    <string name="class_event">حدث الفصل (مرئي لفصل معين)</string>
+    <string name="school_event">حدث مدرسي (مرئي للجميع)</string>
+    <string name="select_target_class">اختر الفصل المستهدف</string>
+    <string name="event_color">لون الحدث</string>
+    <string name="save_event">حفظ الحدث</string>
+    <string name="delete_event">حذف الحدث</string>
+    <string name="event_created">تم إنشاء الحدث</string>
+    <string name="event_deleted">تم حذف الحدث</string>
+    <string name="no_events_for_day">لا توجد أحداث لهذا اليوم</string>
+
+    <!-- Projects -->
+    <string name="projects_clubs">المشاريع والنوادي</string>
+    <string name="my_projects">مشاريعي</string>
+    <string name="clubs">النوادي</string>
+    <string name="study_groups">مجموعات الدراسة</string>
+    <string name="create_project">إنشاء مشروع</string>
+    <string name="project_name">اسم المشروع</string>
+    <string name="project_description">الوصف</string>
+    <string name="project_type">نوع المشروع</string>
+    <string name="deadline">الموعد النهائي (اختياري)</string>
+    <string name="project_created">تم إنشاء المشروع</string>
+    <string name="project_deleted">تم حذف المشروع</string>
+    <string name="no_projects">لا توجد مشاريع\nاضغط على + لإنشاء واحد</string>
+
+    <!-- Polls -->
+    <string name="create_poll">إنشاء استطلاع</string>
+    <string name="question">السؤال</string>
+    <string name="options">الخيارات</string>
+    <string name="add_option">+ إضافة خيار</string>
+    <string name="settings">الإعدادات</string>
+    <string name="anonymous_voting">التصويت المجهول</string>
+    <string name="allow_multiple_selections">السماح بتحديدات متعددة</string>
+    <string name="poll_created">تم إنشاء الاستطلاع</string>
+    <string name="vote_recorded">تم تسجيل التصويت</string>
+    <string name="no_polls">لا توجد استطلاعات\nاضغط على + لإنشاء واحد</string>
 </resources>
+

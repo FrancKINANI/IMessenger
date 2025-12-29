@@ -23,6 +23,71 @@
     <string name="logout">Déconnexion</string>
     <string name="welcome_message">Bienvenue sur IMessenger !</string>
     <string name="sign_in_google">Se connecter avec Google</string>
-    <string name="type_message">Tapez un message...</string>
+    <string name="type_message">Tapez un message…</string>
     <string name="email_already_exists">Cet email est déjà enregistré. Veuillez vous connecter.</string>
+    <string name="forgot_password_title">Mot de passe oublié ?</string>
+    <string name="reset_password">Réinitialiser le mot de passe</string>
+    <string name="reset_password_instruction">Entrez votre adresse email pour recevoir un lien de réinitialisation.</string>
+    <string name="back_to_login">Retour à la connexion</string>
+
+    <!-- Tools Section -->
+    <string name="tools">Outils</string>
+    <string name="quick_access">Accès rapide</string>
+    <string name="calendar">Calendrier</string>
+    <string name="events_schedule">Événements et Horaires</string>
+    <string name="projects">Projets</string>
+    <string name="groups_clubs">Groupes et Clubs</string>
+    <string name="polls">Sondages</string>
+    <string name="vote_survey">Voter et Enquêtes</string>
+    <string name="more">Plus</string>
+    <string name="coming_soon">Bientôt disponible</string>
+    <string name="upcoming_events">Événements à venir</string>
+    <string name="no_upcoming_events">Aucun événement à venir</string>
+
+    <!-- Calendar -->
+    <string name="add_event">Ajouter un événement</string>
+    <string name="event_title">Titre de l\'événement</string>
+    <string name="event_description">Description (optionnel)</string>
+    <string name="start_date">Date de début</string>
+    <string name="start_time">Heure de début</string>
+    <string name="end_date">Date de fin</string>
+    <string name="end_time">Heure de fin</string>
+    <string name="event_type">Type d\'événement</string>
+    <string name="personal_event">Événement personnel</string>
+    <string name="class_event">Événement de classe (visible par une classe spécifique)</string>
+    <string name="school_event">Événement scolaire (visible par tous)</string>
+    <string name="select_target_class">Sélectionner la classe cible</string>
+    <string name="event_color">Couleur de l\'événement</string>
+    <string name="save_event">Enregistrer l\'événement</string>
+    <string name="delete_event">Supprimer l\'événement</string>
+    <string name="event_created">Événement créé</string>
+    <string name="event_deleted">Événement supprimé</string>
+    <string name="no_events_for_day">Aucun événement pour ce jour</string>
+
+    <!-- Projects -->
+    <string name="projects_clubs">Projets et Clubs</string>
+    <string name="my_projects">Mes projets</string>
+    <string name="clubs">Clubs</string>
+    <string name="study_groups">Groupes d\'étude</string>
+    <string name="create_project">Créer un projet</string>
+    <string name="project_name">Nom du projet</string>
+    <string name="project_description">Description</string>
+    <string name="project_type">Type de projet</string>
+    <string name="deadline">Date limite (optionnel)</string>
+    <string name="project_created">Projet créé</string>
+    <string name="project_deleted">Projet supprimé</string>
+    <string name="no_projects">Aucun projet\nAppuyez sur + pour en créer un</string>
+
+    <!-- Polls -->
+    <string name="create_poll">Créer un sondage</string>
+    <string name="question">Question</string>
+    <string name="options">Options</string>
+    <string name="add_option">+ Ajouter une option</string>
+    <string name="settings">Paramètres</string>
+    <string name="anonymous_voting">Vote anonyme</string>
+    <string name="allow_multiple_selections">Autoriser les sélections multiples</string>
+    <string name="poll_created">Sondage créé</string>
+    <string name="vote_recorded">Vote enregistré</string>
+    <string name="no_polls">Aucun sondage\nAppuyez sur + pour en créer un</string>
 </resources>
+
