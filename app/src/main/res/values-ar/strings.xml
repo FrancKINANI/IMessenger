@@ -89,5 +89,6 @@
     <string name="poll_created">تم إنشاء الاستطلاع</string>
     <string name="vote_recorded">تم تسجيل التصويت</string>
     <string name="no_polls">لا توجد استطلاعات\nاضغط على + لإنشاء واحد</string>
+    <string name="permission_denied">تم رفض الإذن. يرجى منح الصلاحية من الإعدادات.</string>
 </resources>
 

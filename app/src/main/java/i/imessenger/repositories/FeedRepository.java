@@ -1,0 +1,257 @@
+package i.imessenger.repositories;
+
+import android.net.Uri;
+import android.util.Log;
+
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
+import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import i.imessenger.models.Comment;
+import i.imessenger.models.FeedPost;
+import i.imessenger.models.User;
+
+public class FeedRepository {
+
+    private static final String TAG = "FeedRepository";
+    private final FirebaseFirestore db;
+    private final FirebaseStorage storage;
+    private final String currentUserId;
+
+    public FeedRepository() {
+        db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
+        currentUserId = FirebaseAuth.getInstance().getUid();
+    }
+
+    public LiveData<List<FeedPost>> getFeedPosts() {
+        MutableLiveData<List<FeedPost>> postsLiveData = new MutableLiveData<>();
+
+        db.collection("posts")
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .limit(50)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        postsLiveData.setValue(new ArrayList<>());
+                        return;
+                    }
+                    if (value != null) {
+                        List<FeedPost> posts = new ArrayList<>();
+                        for (DocumentSnapshot doc : value.getDocuments()) {
+                            FeedPost post = doc.toObject(FeedPost.class);
+                            if (post != null) {
+                                post.setPostId(doc.getId());
+                                posts.add(post);
+                            }
+                        }
+                        postsLiveData.setValue(posts);
+                    }
+                });
+        return postsLiveData;
+    }
+
+    public LiveData<List<FeedPost>> getUserPosts(String userId) {
+        MutableLiveData<List<FeedPost>> postsLiveData = new MutableLiveData<>();
+
+        db.collection("posts")
+                .whereEqualTo("authorId", userId)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        postsLiveData.setValue(new ArrayList<>());
+                        return;
+                    }
+                    if (value != null) {
+                        List<FeedPost> posts = new ArrayList<>();
+                        for (DocumentSnapshot doc : value.getDocuments()) {
+                            FeedPost post = doc.toObject(FeedPost.class);
+                            if (post != null) {
+                                post.setPostId(doc.getId());
+                                posts.add(post);
+                            }
+                        }
+                        postsLiveData.setValue(posts);
+                    }
+                });
+        return postsLiveData;
+    }
+
+    public LiveData<Boolean> createPost(String content, List<Uri> mediaUris, List<String> mediaTypes,
+                                         String visibility, String targetClass, User author) {
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+
+        if (mediaUris != null && !mediaUris.isEmpty()) {
+            uploadMediaAndCreatePost(content, mediaUris, mediaTypes, visibility, targetClass, author, result);
+        } else {
+            createPostDocument(content, new ArrayList<>(), new ArrayList<>(), visibility, targetClass, author, result);
+        }
+
+        return result;
+    }
+
+    private void uploadMediaAndCreatePost(String content, List<Uri> mediaUris, List<String> mediaTypes,
+                                          String visibility, String targetClass, User author,
+                                          MutableLiveData<Boolean> result) {
+        List<String> uploadedUrls = new ArrayList<>();
+        uploadMediaRecursively(mediaUris, mediaTypes, 0, uploadedUrls, () -> {
+            createPostDocument(content, uploadedUrls, mediaTypes, visibility, targetClass, author, result);
+        }, () -> result.setValue(false));
+    }
+
+    private void uploadMediaRecursively(List<Uri> mediaUris, List<String> mediaTypes, int index,
+                                        List<String> uploadedUrls, Runnable onSuccess, Runnable onFailure) {
+        if (index >= mediaUris.size()) {
+            onSuccess.run();
+            return;
+        }
+
+        Uri uri = mediaUris.get(index);
+        // Safe access to mediaTypes - default to "image" if index is out of bounds
+        String type = (mediaTypes != null && index < mediaTypes.size()) ? mediaTypes.get(index) : "image";
+        String fileName = UUID.randomUUID().toString();
+        String path = type.equals("video") ? "posts/videos/" + fileName : "posts/images/" + fileName;
+
+        StorageReference ref = storage.getReference().child(path);
+        ref.putFile(uri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    ref.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                        uploadedUrls.add(downloadUri.toString());
+                        uploadMediaRecursively(mediaUris, mediaTypes, index + 1, uploadedUrls, onSuccess, onFailure);
+                    }).addOnFailureListener(e -> {
+                        Log.e(TAG, "Failed to get download URL: " + e.getMessage(), e);
+                        onFailure.run();
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to upload media: " + e.getMessage(), e);
+                    onFailure.run();
+                });
+    }
+
+    private void createPostDocument(String content, List<String> mediaUrls, List<String> mediaTypes,
+                                    String visibility, String targetClass, User author,
+                                    MutableLiveData<Boolean> result) {
+        String postId = db.collection("posts").document().getId();
+
+        FeedPost post = new FeedPost(
+                postId,
+                currentUserId,
+                author.getFullName(),
+                author.getProfileImage(),
+                author.getRole(),
+                content,
+                mediaUrls,
+                mediaTypes,
+                Timestamp.now(),
+                visibility,
+                targetClass
+        );
+
+        db.collection("posts").document(postId)
+                .set(post)
+                .addOnSuccessListener(aVoid -> result.setValue(true))
+                .addOnFailureListener(e -> result.setValue(false));
+    }
+
+    public void toggleLike(String postId, String userId) {
+        db.collection("posts").document(postId).get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    FeedPost post = documentSnapshot.toObject(FeedPost.class);
+                    if (post != null) {
+                        List<String> likedBy = post.getLikedBy();
+                        if (likedBy == null) likedBy = new ArrayList<>();
+
+                        if (likedBy.contains(userId)) {
+                            db.collection("posts").document(postId)
+                                    .update("likedBy", FieldValue.arrayRemove(userId));
+                        } else {
+                            db.collection("posts").document(postId)
+                                    .update("likedBy", FieldValue.arrayUnion(userId));
+                        }
+                    }
+                });
+    }
+
+    public LiveData<List<Comment>> getComments(String postId) {
+        MutableLiveData<List<Comment>> commentsLiveData = new MutableLiveData<>();
+
+        db.collection("posts").document(postId).collection("comments")
+                .orderBy("createdAt", Query.Direction.ASCENDING)
+                .addSnapshotListener((value, error) -> {
+                    if (error != null) {
+                        commentsLiveData.setValue(new ArrayList<>());
+                        return;
+                    }
+                    if (value != null) {
+                        List<Comment> comments = new ArrayList<>();
+                        for (DocumentSnapshot doc : value.getDocuments()) {
+                            Comment comment = doc.toObject(Comment.class);
+                            if (comment != null) {
+                                comment.setCommentId(doc.getId());
+                                comments.add(comment);
+                            }
+                        }
+                        commentsLiveData.setValue(comments);
+                    }
+                });
+        return commentsLiveData;
+    }
+
+    public LiveData<Boolean> addComment(String postId, String content, User author) {
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+
+        String commentId = db.collection("posts").document(postId)
+                .collection("comments").document().getId();
+
+        Comment comment = new Comment(
+                commentId,
+                postId,
+                currentUserId,
+                author.getFullName(),
+                author.getProfileImage(),
+                content,
+                Timestamp.now()
+        );
+
+        db.collection("posts").document(postId).collection("comments")
+                .document(commentId)
+                .set(comment)
+                .addOnSuccessListener(aVoid -> {
+                    // Update comment count
+                    db.collection("posts").document(postId)
+                            .update("commentCount", FieldValue.increment(1));
+                    result.setValue(true);
+                })
+                .addOnFailureListener(e -> result.setValue(false));
+
+        return result;
+    }
+
+    public LiveData<Boolean> deletePost(String postId) {
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+
+        db.collection("posts").document(postId)
+                .delete()
+                .addOnSuccessListener(aVoid -> result.setValue(true))
+                .addOnFailureListener(e -> result.setValue(false));
+
+        return result;
+    }
+
+    public String getCurrentUserId() {
+        return currentUserId;
+    }
+}
+

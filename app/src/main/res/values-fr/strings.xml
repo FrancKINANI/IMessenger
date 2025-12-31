@@ -89,5 +89,6 @@
     <string name="poll_created">Sondage créé</string>
     <string name="vote_recorded">Vote enregistré</string>
     <string name="no_polls">Aucun sondage\nAppuyez sur + pour en créer un</string>
+    <string name="permission_denied">Permission refusée. Veuillez accorder l\'accès dans les paramètres.</string>
 </resources>
 

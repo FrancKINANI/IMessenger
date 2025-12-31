@@ -52,6 +52,8 @@ dependencies {
     implementation libs.play.services.auth
     implementation libs.navigation.fragment
     implementation libs.navigation.ui
+    implementation libs.swiperefreshlayout
+    implementation libs.viewpager2
 
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit

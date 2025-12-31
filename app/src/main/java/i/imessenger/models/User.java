@@ -9,6 +9,7 @@ public class User {
     private String profileImage;
     private String fcmToken;
     private String groups;
+    private String bio;
 
     public User() {
         // Required for Firestore
@@ -23,6 +24,7 @@ public class User {
         this.profileImage = profileImage;
         this.fcmToken = fcmToken;
         this.groups = groups;
+        this.bio = "";
     }
 
     public String getUid() {
@@ -87,5 +89,13 @@ public class User {
 
     public void setGroups(String groups) {
         this.groups = groups;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 }

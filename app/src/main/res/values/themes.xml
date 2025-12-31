@@ -11,4 +11,8 @@
         <item name="android:statusBarColor">@color/ismagi_blue_primary</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="ShapeAppearance.Fab.Rounded" parent="ShapeAppearance.Material3.Corner.Full">
+        <item name="cornerSize">50%</item>
+    </style>
 </resources>

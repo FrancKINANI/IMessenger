@@ -14,32 +14,27 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import com.bumptech.glide.Glide;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import i.imessenger.R;
 import i.imessenger.adapters.FeedPostAdapter;
-import i.imessenger.databinding.FragmentFeedBinding;
+import i.imessenger.databinding.FragmentUserPostsBinding;
 import i.imessenger.models.FeedPost;
 import i.imessenger.viewmodels.FeedViewModel;
 
-public class FeedFragment extends Fragment implements FeedPostAdapter.OnPostInteractionListener {
+public class UserPostsFragment extends Fragment implements FeedPostAdapter.OnPostInteractionListener {
 
-    private FragmentFeedBinding binding;
+    private FragmentUserPostsBinding binding;
     private FeedViewModel feedViewModel;
     private FeedPostAdapter adapter;
     private List<FeedPost> posts = new ArrayList<>();
-
-    public FeedFragment() {
-        // Required empty public constructor
-    }
+    private String userId;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        binding = FragmentFeedBinding.inflate(inflater, container, false);
+        binding = FragmentUserPostsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
@@ -47,12 +42,25 @@ public class FeedFragment extends Fragment implements FeedPostAdapter.OnPostInte
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        if (getArguments() != null) {
+            userId = getArguments().getString("userId");
+        }
+
+        if (userId == null) {
+            NavHostFragment.findNavController(this).navigateUp();
+            return;
+        }
+
         feedViewModel = new ViewModelProvider(this).get(FeedViewModel.class);
 
+        setupToolbar();
         setupRecyclerView();
-        setupSwipeRefresh();
-        setupClickListeners();
-        observeData();
+        loadPosts();
+    }
+
+    private void setupToolbar() {
+        binding.toolbar.setNavigationOnClickListener(v ->
+                NavHostFragment.findNavController(this).navigateUp());
     }
 
     private void setupRecyclerView() {
@@ -62,44 +70,15 @@ public class FeedFragment extends Fragment implements FeedPostAdapter.OnPostInte
         binding.recyclerViewPosts.setAdapter(adapter);
     }
 
-    private void setupSwipeRefresh() {
-        binding.swipeRefresh.setColorSchemeResources(R.color.ismagi_accent);
-        binding.swipeRefresh.setOnRefreshListener(() -> {
-            // Data is already being observed in real-time, just stop the animation
-            binding.swipeRefresh.setRefreshing(false);
-        });
-    }
+    private void loadPosts() {
+        binding.progressBar.setVisibility(View.VISIBLE);
 
-    private void setupClickListeners() {
-        binding.fabCreatePost.setOnClickListener(v -> {
-            NavHostFragment.findNavController(this).navigate(R.id.createPostFragment);
-        });
-
-        binding.ivUserAvatar.setOnClickListener(v -> {
-            NavHostFragment.findNavController(this).navigate(R.id.nav_profile);
-        });
-    }
-
-    private void observeData() {
-        // Load current user avatar
-        feedViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
-            if (user != null && user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
-                Glide.with(this)
-                        .load(user.getProfileImage())
-                        .placeholder(R.drawable.logo)
-                        .circleCrop()
-                        .into(binding.ivUserAvatar);
-            }
-        });
-
-        // Load feed posts
-        feedViewModel.getFeedPosts().observe(getViewLifecycleOwner(), feedPosts -> {
+        feedViewModel.getUserPosts(userId).observe(getViewLifecycleOwner(), postList -> {
             binding.progressBar.setVisibility(View.GONE);
-            binding.swipeRefresh.setRefreshing(false);
 
-            if (feedPosts != null && !feedPosts.isEmpty()) {
+            if (postList != null && !postList.isEmpty()) {
                 posts.clear();
-                posts.addAll(feedPosts);
+                posts.addAll(postList);
                 adapter.updatePosts(posts);
                 binding.emptyState.setVisibility(View.GONE);
                 binding.recyclerViewPosts.setVisibility(View.VISIBLE);
@@ -132,13 +111,7 @@ public class FeedFragment extends Fragment implements FeedPostAdapter.OnPostInte
 
     @Override
     public void onAuthorClicked(FeedPost post) {
-        if (feedViewModel.isCurrentUser(post.getAuthorId())) {
-            NavHostFragment.findNavController(this).navigate(R.id.nav_profile);
-        } else {
-            Bundle args = new Bundle();
-            args.putString("userId", post.getAuthorId());
-            NavHostFragment.findNavController(this).navigate(R.id.userProfileFragment, args);
-        }
+        // Already on user's posts page
     }
 
     @Override
@@ -166,3 +139,4 @@ public class FeedFragment extends Fragment implements FeedPostAdapter.OnPostInte
         binding = null;
     }
 }
+
