@@ -88,22 +88,27 @@ public class ChatListFragment extends Fragment {
         });
 
         binding.tabDiscover.setOnClickListener(v -> {
-            isDiscoverTab = true;
-            updateTabUI();
-            refreshAdapter();
+                    isDiscoverTab = true;
+                    updateTabUI();
+                    refreshAdapter();
         });
+
+
+        
+        // Set initial state
+        updateTabUI();
     }
 
     private void updateTabUI() {
         if (isDiscoverTab) {
-            binding.tabChats.setBackground(null);
+            binding.tabChats.setSelected(false);
             binding.tabChats.setAlpha(0.7f);
-            binding.tabDiscover.setBackgroundResource(R.drawable.tab_indicator_selected);
+            binding.tabDiscover.setSelected(true);
             binding.tabDiscover.setAlpha(1.0f);
         } else {
-            binding.tabChats.setBackgroundResource(R.drawable.tab_indicator_selected);
+            binding.tabChats.setSelected(true);
             binding.tabChats.setAlpha(1.0f);
-            binding.tabDiscover.setBackground(null);
+            binding.tabDiscover.setSelected(false);
             binding.tabDiscover.setAlpha(0.7f);
         }
     }

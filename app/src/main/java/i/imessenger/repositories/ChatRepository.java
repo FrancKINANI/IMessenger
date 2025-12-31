@@ -86,6 +86,9 @@ public class ChatRepository {
                     List<Group> groups = new ArrayList<>();
                     for (QueryDocumentSnapshot document : queryDocumentSnapshots) {
                         Group group = document.toObject(Group.class);
+                        if (group.getGroupId() == null) {
+                            group.setGroupId(document.getId());
+                        }
                         if (!"PUBLIC".equals(group.getGroupType()) && !"EVENT".equals(group.getGroupType())) {
                             groups.add(group);
                         }

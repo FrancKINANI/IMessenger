@@ -4,7 +4,7 @@
     <solid android:color="@color/white" />
     <corners android:radius="20dp" />
     <stroke android:width="0dp" android:color="@android:color/transparent" />
-    <padding android:left="0dp" android:top="0dp" android:right="0dp" android:bottom="0dp" />
+
     <!-- Actually, for a selected tab indicator, maybe just a bottom border or a pill shape. 
          Let's make it a pill shape with white background and blue text (handled in code or via selector).
          For now, this is a simple white pill background. -->

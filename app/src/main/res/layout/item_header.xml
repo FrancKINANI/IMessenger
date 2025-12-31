@@ -8,6 +8,6 @@
     android:paddingTop="16dp"
     android:paddingBottom="8dp"
     android:text="Header"
-    android:textColor="?attr/colorPrimary"
+    android:textColor="@color/text_secondary"
     android:textSize="18sp"
     android:textStyle="bold" />

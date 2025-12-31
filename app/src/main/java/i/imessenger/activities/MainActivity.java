@@ -16,7 +16,6 @@ import i.imessenger.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-    private NavController navController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
                 .findFragmentById(R.id.nav_host_fragment);
         
         if (navHostFragment != null) {
-            navController = navHostFragment.getNavController();
+            NavController navController = navHostFragment.getNavController();
             NavigationUI.setupWithNavController(binding.bottomNavigation, navController);
 
             navController.addOnDestinationChangedListener((controller, destination, arguments) -> {

@@ -90,5 +90,9 @@
     <string name="poll_created">Poll created</string>
     <string name="vote_recorded">Vote recorded</string>
     <string name="no_polls">No polls yet\nTap + to create one</string>
-</resources>
 
+    <string name="chat_title">Chat</string>
+    <string name="feed_title">Feed</string>
+    <string name="tools_title">Tools</string>
+    <string name="profile_title">Profile</string>
+</resources>

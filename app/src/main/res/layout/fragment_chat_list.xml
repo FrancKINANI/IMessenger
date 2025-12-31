@@ -38,7 +38,7 @@
                 android:layout_marginTop="24dp"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp"
-                app:cardBackgroundColor="@color/surface_color"
+                app:cardBackgroundColor="@color/search_bar_background"
                 app:layout_constraintTop_toBottomOf="@id/tvTitle">
     
                 <EditText
@@ -75,7 +75,7 @@
                     android:text="Chats"
                     android:textColor="@color/white"
                     android:textStyle="bold"
-                    android:background="@drawable/tab_indicator_selected" />
+                    android:background="@drawable/tab_selector" />
     
                 <TextView
                     android:id="@+id/tabDiscover"
@@ -84,8 +84,10 @@
                     android:layout_weight="1"
                     android:gravity="center"
                     android:padding="8dp"
+                    android:textStyle="bold"
                     android:text="Discover"
                     android:textColor="@color/white"
+                    android:background="@drawable/tab_selector"
                     android:alpha="0.7" />
             </LinearLayout>
     

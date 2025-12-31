@@ -59,6 +59,14 @@ public class ChatFragment extends Fragment {
         chatViewModel = new ViewModelProvider(this).get(ChatViewModel.class);
 
         binding.toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).navigateUp());
+        
+        binding.headerContent.setOnClickListener(v -> {
+            if (receiverUserId != null) {
+                Bundle bundle = new Bundle();
+                bundle.putString("userId", receiverUserId);
+                NavHostFragment.findNavController(this).navigate(R.id.userProfileFragment, bundle);
+            }
+        });
 
         // binding.setViewModel(chatViewModel); // Uncomment if binding layout supports it
         binding.setIsLoading(true);
