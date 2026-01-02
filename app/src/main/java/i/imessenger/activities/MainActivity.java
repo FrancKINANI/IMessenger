@@ -1,8 +1,11 @@
 package i.imessenger.activities;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatDelegate;
 
 import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
@@ -16,9 +19,14 @@ import i.imessenger.databinding.ActivityMainBinding;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    private static final String PREFS_NAME = "imessenger_prefs";
+    private static final String KEY_DARK_MODE = "dark_mode";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        // Apply dark mode preference before super.onCreate to avoid flickering
+        applyDarkModePreference();
+
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -45,5 +53,13 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void applyDarkModePreference() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean(KEY_DARK_MODE, false);
+        AppCompatDelegate.setDefaultNightMode(
+            isDarkMode ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO
+        );
     }
 }

@@ -47,6 +47,7 @@ public class ProfileFragment extends Fragment {
     private List<FeedPost> posts = new ArrayList<>();
 
     private User currentUser;
+    private boolean isUserDataLoaded = false;
 
     private final ActivityResultLauncher<String> pickImage = registerForActivityResult(
             new ActivityResultContracts.GetContent(),
@@ -153,8 +154,12 @@ public class ProfileFragment extends Fragment {
                 if (user != null) {
                     currentUser = user;
                     populateUserData(user);
-                    loadUserMedia(user.getUid());
-                    loadUserPosts(user.getUid());
+                    // Only load posts and media once to avoid multiple observers
+                    if (!isUserDataLoaded) {
+                        isUserDataLoaded = true;
+                        loadUserMedia(user.getUid());
+                        loadUserPosts(user.getUid());
+                    }
                 } else {
                     createMissingUserDocument(firebaseUser);
                 }
@@ -182,6 +187,20 @@ public class ProfileFragment extends Fragment {
         binding.tvGroups.setText(user.getGroups() != null && !user.getGroups().isEmpty()
                 ? user.getGroups() : "-");
 
+        // Calculate and set groups count - handle null/empty cases
+        int groupsCount = 0;
+        String groups = user.getGroups();
+        if (groups != null && !groups.isEmpty() && !groups.equals("-") && !groups.trim().isEmpty()) {
+            // Count comma-separated groups, filtering out empty strings
+            String[] groupsArray = groups.split(",");
+            for (String group : groupsArray) {
+                if (group != null && !group.trim().isEmpty()) {
+                    groupsCount++;
+                }
+            }
+        }
+        binding.tvGroupsCount.setText(String.valueOf(groupsCount));
+
         // Bio
         if (user.getBio() != null && !user.getBio().isEmpty()) {
             binding.tvBio.setText(user.getBio());
@@ -199,12 +218,14 @@ public class ProfileFragment extends Fragment {
 
     private void loadUserMedia(String userId) {
         mediaViewModel.getUserMedia(userId).observe(getViewLifecycleOwner(), mediaList -> {
-            if (mediaList != null && !mediaList.isEmpty()) {
-                mediaItems.clear();
-                mediaItems.addAll(mediaList);
-                mediaAdapter.updateMedia(mediaItems);
-                binding.tvNoMedia.setVisibility(View.GONE);
-                binding.recyclerViewMedia.setVisibility(View.VISIBLE);
+            if (mediaList != null) {
+                if (!mediaList.isEmpty()) {
+                    mediaItems.clear();
+                    mediaItems.addAll(mediaList);
+                    mediaAdapter.updateMedia(mediaItems);
+                    binding.tvNoMedia.setVisibility(View.GONE);
+                    binding.recyclerViewMedia.setVisibility(View.VISIBLE);
+                }
                 binding.tvMediaCount.setText(String.valueOf(mediaList.size()));
             } else {
                 binding.tvNoMedia.setVisibility(View.VISIBLE);
@@ -216,12 +237,14 @@ public class ProfileFragment extends Fragment {
 
     private void loadUserPosts(String userId) {
         feedViewModel.getUserPosts(userId).observe(getViewLifecycleOwner(), postList -> {
-            if (postList != null && !postList.isEmpty()) {
-                posts.clear();
-                posts.addAll(postList);
-                postAdapter.updatePosts(posts);
-                binding.tvNoPosts.setVisibility(View.GONE);
-                binding.recyclerViewPosts.setVisibility(View.VISIBLE);
+            if (postList != null) {
+                if (!postList.isEmpty()) {
+                    posts.clear();
+                    posts.addAll(postList);
+                    postAdapter.updatePosts(posts);
+                    binding.tvNoPosts.setVisibility(View.GONE);
+                    binding.recyclerViewPosts.setVisibility(View.VISIBLE);
+                }
                 binding.tvPostsCount.setText(String.valueOf(postList.size()));
             } else {
                 binding.tvNoPosts.setVisibility(View.VISIBLE);

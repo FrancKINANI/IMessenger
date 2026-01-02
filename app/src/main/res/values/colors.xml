@@ -1,27 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="ismagi_blue_primary">#0F172A</color> <!-- Slate 900 -->
-    <color name="ismagi_blue_secondary">#0F172A</color> <!-- Slate 900 -->
-    <color name="ismagi_blue_light">#334155</color> <!-- Slate 700 -->
-    <color name="ismagi_accent">#3B82F6</color> <!-- Blue 500 -->
-    <color name="ismagi_accent_light">#60A5FA</color> <!-- Blue 400 -->
-    <color name="colorLogout">#EF4444</color> <!-- Red 500 -->
+    <color name="ismagi_blue_primary">#0F172A</color>
+    <color name="ismagi_blue_secondary">#0F172A</color>
+    <color name="ismagi_blue_light">#334155</color>
+    <color name="ismagi_accent">#3B82F6</color>
+    <color name="ismagi_accent_light">#60A5FA</color>
+    <color name="colorLogout">#EF4444</color>
     <color name="white">#FFFFFF</color>
     <color name="black">#000000</color>
 
-    <color name="background_gray">#F8FAFC</color> <!-- Slate 50 -->
+    <color name="background_gray">#F8FAFC</color>
     <color name="surface_color">#FFFFFF</color>
-    <color name="text_primary">#1E293B</color> <!-- Slate 800 -->
-    <color name="text_secondary">#64748B</color> <!-- Slate 500 -->
+    <color name="text_primary">#1E293B</color>
+    <color name="text_secondary">#64748B</color>
     <color name="chat_bubble_me">#3B82F6</color>
-    <color name="chat_bubble_other">#F1F5F9</color> <!-- Slate 100 -->
-    <color name="divider">#E2E8F0</color> <!-- Slate 200 -->
+    <color name="chat_bubble_other">#F1F5F9</color>
+    <color name="divider">#E2E8F0</color>
     <color name="search_bar_background">@color/white</color>
     
-    <!-- Gradients -->
+    <color name="card_background">#FFFFFF</color>
+    <color name="card_background_elevated">#F8FAFC</color>
+
+    <color name="icon_bg_blue">#E0F2FE</color>
+    <color name="icon_bg_green">#D1FAE5</color>
+    <color name="icon_bg_amber">#FEF3C7</color>
+    <color name="icon_bg_slate">#F1F5F9</color>
+
     <color name="gradient_start">#0F172A</color>
     <color name="gradient_end">#1E293B</color>
 
-    <!-- Material 3 Theme Colors Mapping -->
     <color name="colorPrimary">@color/ismagi_blue_primary</color>
     <color name="colorSecondary">@color/ismagi_accent</color>
     <color name="colorOnPrimary">@color/white</color>

@@ -30,6 +30,9 @@ public class FeedRepository {
     private final FirebaseStorage storage;
     private final String currentUserId;
 
+    // Cache for user posts LiveData to avoid multiple listeners
+    private final java.util.Map<String, MutableLiveData<List<FeedPost>>> userPostsCache = new java.util.HashMap<>();
+
     public FeedRepository() {
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
@@ -63,14 +66,24 @@ public class FeedRepository {
     }
 
     public LiveData<List<FeedPost>> getUserPosts(String userId) {
+        // Return cached LiveData if available
+        if (userPostsCache.containsKey(userId)) {
+            return userPostsCache.get(userId);
+        }
+
         MutableLiveData<List<FeedPost>> postsLiveData = new MutableLiveData<>();
+        userPostsCache.put(userId, postsLiveData);
 
         db.collection("posts")
                 .whereEqualTo("authorId", userId)
                 .orderBy("createdAt", Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        postsLiveData.setValue(new ArrayList<>());
+                        Log.e(TAG, "Error fetching user posts: " + error.getMessage(), error);
+                        // Don't set empty list on error - keep previous value or set null
+                        if (postsLiveData.getValue() == null) {
+                            postsLiveData.setValue(new ArrayList<>());
+                        }
                         return;
                     }
                     if (value != null) {
@@ -118,14 +131,24 @@ public class FeedRepository {
         }
 
         Uri uri = mediaUris.get(index);
+        if (uri == null) {
+            Log.e(TAG, "Media URI at index " + index + " is null");
+            onFailure.run();
+            return;
+        }
+
         // Safe access to mediaTypes - default to "image" if index is out of bounds
         String type = (mediaTypes != null && index < mediaTypes.size()) ? mediaTypes.get(index) : "image";
         String fileName = UUID.randomUUID().toString();
-        String path = type.equals("video") ? "posts/videos/" + fileName : "posts/images/" + fileName;
+        String extension = type.equals("video") ? ".mp4" : ".jpg";
+        String path = type.equals("video") ? "posts/videos/" + fileName + extension : "posts/images/" + fileName + extension;
+
+        Log.d(TAG, "Uploading media: " + uri.toString() + " to path: " + path);
 
         StorageReference ref = storage.getReference().child(path);
         ref.putFile(uri)
                 .addOnSuccessListener(taskSnapshot -> {
+                    Log.d(TAG, "Upload successful for: " + path);
                     ref.getDownloadUrl().addOnSuccessListener(downloadUri -> {
                         uploadedUrls.add(downloadUri.toString());
                         uploadMediaRecursively(mediaUris, mediaTypes, index + 1, uploadedUrls, onSuccess, onFailure);
@@ -135,7 +158,7 @@ public class FeedRepository {
                     });
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to upload media: " + e.getMessage(), e);
+                    Log.e(TAG, "Failed to upload media at index " + index + ": " + e.getMessage(), e);
                     onFailure.run();
                 });
     }
@@ -159,10 +182,18 @@ public class FeedRepository {
                 targetClass
         );
 
+        Log.d(TAG, "Creating post with " + mediaUrls.size() + " media items");
+
         db.collection("posts").document(postId)
                 .set(post)
-                .addOnSuccessListener(aVoid -> result.setValue(true))
-                .addOnFailureListener(e -> result.setValue(false));
+                .addOnSuccessListener(aVoid -> {
+                    Log.d(TAG, "Post created successfully with ID: " + postId);
+                    result.setValue(true);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Failed to create post: " + e.getMessage(), e);
+                    result.setValue(false);
+                });
     }
 
     public void toggleLike(String postId, String userId) {

@@ -1,7 +1,6 @@
 package i.imessenger.fragments;
 
 import android.Manifest;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
@@ -68,13 +67,6 @@ public class CreatePostFragment extends Fragment {
             new ActivityResultContracts.GetContent(),
             uri -> {
                 if (uri != null) {
-                    // Take persistent read permission for the URI
-                    try {
-                        requireContext().getContentResolver().takePersistableUriPermission(
-                                uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    } catch (SecurityException e) {
-                        // Permission might not be available, continue anyway
-                    }
                     selectedMediaUris.add(uri);
                     selectedMediaTypes.add("image");
                     updateMediaPreview();
@@ -86,13 +78,6 @@ public class CreatePostFragment extends Fragment {
             new ActivityResultContracts.GetContent(),
             uri -> {
                 if (uri != null) {
-                    // Take persistent read permission for the URI
-                    try {
-                        requireContext().getContentResolver().takePersistableUriPermission(
-                                uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    } catch (SecurityException e) {
-                        // Permission might not be available, continue anyway
-                    }
                     selectedMediaUris.add(uri);
                     selectedMediaTypes.add("video");
                     updateMediaPreview();

@@ -10,6 +10,8 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/gradient_background"
         app:layout_constraintTop_toTopOf="parent"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="@string/edit_profile"
         app:titleTextColor="@color/white" />
 
     <ScrollView

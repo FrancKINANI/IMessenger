@@ -23,9 +23,13 @@ import i.imessenger.models.MediaItem;
 
 public class MediaRepository {
 
+    private static final String TAG = "MediaRepository";
     private final FirebaseFirestore db;
     private final FirebaseStorage storage;
     private final String currentUserId;
+
+    // Cache for user media LiveData to avoid multiple listeners
+    private final Map<String, MutableLiveData<List<MediaItem>>> userMediaCache = new HashMap<>();
 
     public MediaRepository() {
         db = FirebaseFirestore.getInstance();
@@ -34,14 +38,24 @@ public class MediaRepository {
     }
 
     public LiveData<List<MediaItem>> getUserMedia(String userId) {
+        // Return cached LiveData if available
+        if (userMediaCache.containsKey(userId)) {
+            return userMediaCache.get(userId);
+        }
+
         MutableLiveData<List<MediaItem>> mediaLiveData = new MutableLiveData<>();
+        userMediaCache.put(userId, mediaLiveData);
 
         db.collection("media")
                 .whereEqualTo("ownerId", userId)
                 .orderBy("uploadedAt", Query.Direction.DESCENDING)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        mediaLiveData.setValue(new ArrayList<>());
+                        android.util.Log.e(TAG, "Error fetching user media: " + error.getMessage(), error);
+                        // Don't set empty list on error - keep previous value
+                        if (mediaLiveData.getValue() == null) {
+                            mediaLiveData.setValue(new ArrayList<>());
+                        }
                         return;
                     }
                     if (value != null) {

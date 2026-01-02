@@ -1,6 +1,8 @@
 package i.imessenger.fragments;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,6 +24,8 @@ public class SettingsFragment extends Fragment {
 
     private FragmentSettingsBinding binding;
     private SettingsViewModel settingsViewModel;
+    private static final String PREFS_NAME = "imessenger_prefs";
+    private static final String KEY_DARK_MODE = "dark_mode";
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -43,11 +47,15 @@ public class SettingsFragment extends Fragment {
             NavHostFragment.findNavController(this).navigate(R.id.editProfileFragment);
         });
 
-        // Dark Mode
-        int currentNightMode = AppCompatDelegate.getDefaultNightMode();
-        binding.switchDarkMode.setChecked(currentNightMode == AppCompatDelegate.MODE_NIGHT_YES);
+        // Dark Mode - Load from SharedPreferences
+        SharedPreferences prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        boolean isDarkMode = prefs.getBoolean(KEY_DARK_MODE, false);
+        binding.switchDarkMode.setChecked(isDarkMode);
 
         binding.switchDarkMode.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            // Save preference
+            prefs.edit().putBoolean(KEY_DARK_MODE, isChecked).apply();
+
             if (isChecked) {
                 AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
             } else {

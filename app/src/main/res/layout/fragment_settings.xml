@@ -11,7 +11,8 @@
         android:layout_height="?attr/actionBarSize"
         android:background="@drawable/gradient_background"
         app:layout_constraintTop_toTopOf="parent"
-        app:title="Settings"
+        app:navigationIcon="@drawable/ic_back"
+        app:title="@string/settings"
         app:titleTextColor="@color/white" />
 
     <LinearLayout

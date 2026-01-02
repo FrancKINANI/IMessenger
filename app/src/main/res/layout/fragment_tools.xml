@@ -15,7 +15,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Tools"
+            app:title="@string/tools"
             app:titleTextColor="@color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
@@ -80,14 +80,14 @@
                                 android:layout_height="56dp"
                                 app:cardCornerRadius="28dp"
                                 app:cardElevation="0dp"
-                                app:cardBackgroundColor="#E0F2FE">
+                                app:cardBackgroundColor="@color/icon_bg_blue">
 
                                 <ImageView
                                     android:layout_width="28dp"
                                     android:layout_height="28dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_calendar"
-                                    app:tint="#3B82F6"
+                                    app:tint="@color/ismagi_accent"
                                     android:contentDescription="Calendar" />
 
                             </androidx.cardview.widget.CardView>
@@ -140,7 +140,7 @@
                                 android:layout_height="56dp"
                                 app:cardCornerRadius="28dp"
                                 app:cardElevation="0dp"
-                                app:cardBackgroundColor="#D1FAE5">
+                                app:cardBackgroundColor="@color/icon_bg_green">
 
                                 <ImageView
                                     android:layout_width="28dp"
@@ -209,7 +209,7 @@
                                 android:layout_height="56dp"
                                 app:cardCornerRadius="28dp"
                                 app:cardElevation="0dp"
-                                app:cardBackgroundColor="#FEF3C7">
+                                app:cardBackgroundColor="@color/icon_bg_amber">
 
                                 <ImageView
                                     android:layout_width="28dp"
@@ -269,14 +269,14 @@
                                 android:layout_height="56dp"
                                 app:cardCornerRadius="28dp"
                                 app:cardElevation="0dp"
-                                app:cardBackgroundColor="#F1F5F9">
+                                app:cardBackgroundColor="@color/icon_bg_slate">
 
                                 <ImageView
                                     android:layout_width="28dp"
                                     android:layout_height="28dp"
                                     android:layout_gravity="center"
                                     android:src="@drawable/ic_tools"
-                                    app:tint="#64748B"
+                                    app:tint="@color/text_secondary"
                                     android:contentDescription="More" />
 
                             </androidx.cardview.widget.CardView>
