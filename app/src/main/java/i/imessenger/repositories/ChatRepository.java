@@ -1,6 +1,7 @@
 package i.imessenger.repositories;
 
 import android.content.Context;
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.lifecycle.LiveData;
@@ -11,12 +12,16 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import i.imessenger.database.AppDatabase;
 import i.imessenger.database.ChatMessageEntity;
@@ -28,13 +33,20 @@ import i.imessenger.utils.EncryptionUtils;
 public class ChatRepository {
 
     private final FirebaseFirestore db;
+    private final FirebaseStorage storage;
     private final String currentUserId;
     private final AppDatabase database;
     private final ExecutorService executorService;
     private com.google.firebase.firestore.ListenerRegistration chatListener;
 
+    public interface MediaUploadCallback {
+        void onSuccess();
+        void onError(String error);
+    }
+
     public ChatRepository(Context context) {
         db = FirebaseFirestore.getInstance();
+        storage = FirebaseStorage.getInstance();
         currentUserId = FirebaseAuth.getInstance().getUid();
         database = AppDatabase.getInstance(context);
         executorService = Executors.newSingleThreadExecutor();
@@ -179,6 +191,62 @@ public class ChatRepository {
         db.collection("chat").add(message);
     }
     
+    public void sendMediaMessage(ChatMessage message, List<Uri> mediaUris, MediaUploadCallback callback) {
+        if (mediaUris == null || mediaUris.isEmpty()) {
+            sendMessage(message);
+            callback.onSuccess();
+            return;
+        }
+
+        if (currentUserId == null) {
+            callback.onError("User not authenticated");
+            return;
+        }
+
+        List<String> uploadedUrls = new ArrayList<>();
+        AtomicInteger uploadCount = new AtomicInteger(0);
+        int totalUploads = mediaUris.size();
+
+        for (int i = 0; i < mediaUris.size(); i++) {
+            Uri uri = mediaUris.get(i);
+            String mediaType = (message.mediaTypes != null && i < message.mediaTypes.size())
+                    ? message.mediaTypes.get(i) : "image";
+            String extension = "video".equals(mediaType) ? ".mp4" : ".jpg";
+            String fileName = "chat_media/" + currentUserId + "/" + UUID.randomUUID().toString() + extension;
+
+            StorageReference ref = storage.getReference().child(fileName);
+
+            final int index = i;
+            ref.putFile(uri)
+                .addOnSuccessListener(taskSnapshot -> {
+                    ref.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                        synchronized (uploadedUrls) {
+                            // Maintain order
+                            while (uploadedUrls.size() <= index) {
+                                uploadedUrls.add(null);
+                            }
+                            uploadedUrls.set(index, downloadUri.toString());
+                        }
+
+                        if (uploadCount.incrementAndGet() == totalUploads) {
+                            // All uploads complete
+                            message.mediaUrls = new ArrayList<>();
+                            for (String url : uploadedUrls) {
+                                if (url != null) {
+                                    message.mediaUrls.add(url);
+                                }
+                            }
+                            sendMessage(message);
+                            callback.onSuccess();
+                        }
+                    });
+                })
+                .addOnFailureListener(e -> {
+                    callback.onError(e.getMessage());
+                });
+        }
+    }
+
     public LiveData<List<ChatMessage>> getMessages(String receiverId, String groupId) {
         LiveData<List<ChatMessageEntity>> source;
         if (groupId != null) {

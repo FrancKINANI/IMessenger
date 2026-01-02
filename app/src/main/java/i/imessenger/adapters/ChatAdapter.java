@@ -1,10 +1,18 @@
 package i.imessenger.adapters;
 
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 
 import java.util.List;
 
@@ -63,7 +71,8 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        if (chatMessages.get(position).senderId.equals(senderId)) {
+        ChatMessage message = chatMessages.get(position);
+        if (message.senderId != null && message.senderId.equals(senderId)) {
             return VIEW_TYPE_SENT;
         } else {
             return VIEW_TYPE_RECEIVED;
@@ -79,8 +88,75 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         void setData(ChatMessage chatMessage) {
-            binding.textMessage.setText(chatMessage.message);
+            Context context = binding.getRoot().getContext();
+
+            // Handle text message
+            if (chatMessage.message != null && !chatMessage.message.isEmpty()) {
+                binding.textMessage.setVisibility(View.VISIBLE);
+                binding.textMessage.setText(chatMessage.message);
+            } else {
+                binding.textMessage.setVisibility(View.GONE);
+            }
+
             binding.textDateTime.setText(chatMessage.dateTime);
+
+            // Handle media
+            if (chatMessage.hasMedia()) {
+                binding.mediaContainer.setVisibility(View.VISIBLE);
+
+                List<String> mediaUrls = chatMessage.mediaUrls;
+                List<String> mediaTypes = chatMessage.mediaTypes;
+
+                if (mediaUrls.size() == 1) {
+                    // Single media - show larger
+                    binding.singleMediaContainer.setVisibility(View.VISIBLE);
+                    binding.mediaRecyclerView.setVisibility(View.GONE);
+
+                    String url = mediaUrls.get(0);
+                    String type = mediaTypes != null && !mediaTypes.isEmpty() ? mediaTypes.get(0) : "image";
+
+                    Glide.with(context)
+                            .load(url)
+                            .transform(new CenterCrop(), new RoundedCorners(16))
+                            .into(binding.singleMediaImage);
+
+                    if ("video".equals(type)) {
+                        binding.videoPlayIcon.setVisibility(View.VISIBLE);
+                        binding.singleMediaContainer.setOnClickListener(v -> {
+                            try {
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setDataAndType(Uri.parse(url), "video/*");
+                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                context.startActivity(intent);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    } else {
+                        binding.videoPlayIcon.setVisibility(View.GONE);
+                        binding.singleMediaContainer.setOnClickListener(v -> {
+                            try {
+                                // Open image viewer or full screen
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setDataAndType(Uri.parse(url), "image/*");
+                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                context.startActivity(intent);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                } else {
+                    // Multiple media - show grid
+                    binding.singleMediaContainer.setVisibility(View.GONE);
+                    binding.mediaRecyclerView.setVisibility(View.VISIBLE);
+
+                    ChatMediaGridAdapter adapter = new ChatMediaGridAdapter(mediaUrls, mediaTypes);
+                    binding.mediaRecyclerView.setAdapter(adapter);
+                }
+            } else {
+                binding.mediaContainer.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -93,8 +169,74 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
 
         void setData(ChatMessage chatMessage) {
-            binding.textMessage.setText(chatMessage.message);
+            Context context = binding.getRoot().getContext();
+
+            // Handle text message
+            if (chatMessage.message != null && !chatMessage.message.isEmpty()) {
+                binding.textMessage.setVisibility(View.VISIBLE);
+                binding.textMessage.setText(chatMessage.message);
+            } else {
+                binding.textMessage.setVisibility(View.GONE);
+            }
+
             binding.textDateTime.setText(chatMessage.dateTime);
+
+            // Handle media
+            if (chatMessage.hasMedia()) {
+                binding.mediaContainer.setVisibility(View.VISIBLE);
+
+                List<String> mediaUrls = chatMessage.mediaUrls;
+                List<String> mediaTypes = chatMessage.mediaTypes;
+
+                if (mediaUrls.size() == 1) {
+                    // Single media - show larger
+                    binding.singleMediaContainer.setVisibility(View.VISIBLE);
+                    binding.mediaRecyclerView.setVisibility(View.GONE);
+
+                    String url = mediaUrls.get(0);
+                    String type = mediaTypes != null && !mediaTypes.isEmpty() ? mediaTypes.get(0) : "image";
+
+                    Glide.with(context)
+                            .load(url)
+                            .transform(new CenterCrop(), new RoundedCorners(16))
+                            .into(binding.singleMediaImage);
+
+                    if ("video".equals(type)) {
+                        binding.videoPlayIcon.setVisibility(View.VISIBLE);
+                        binding.singleMediaContainer.setOnClickListener(v -> {
+                            try {
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setDataAndType(Uri.parse(url), "video/*");
+                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                context.startActivity(intent);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    } else {
+                        binding.videoPlayIcon.setVisibility(View.GONE);
+                        binding.singleMediaContainer.setOnClickListener(v -> {
+                            try {
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                intent.setDataAndType(Uri.parse(url), "image/*");
+                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                context.startActivity(intent);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        });
+                    }
+                } else {
+                    // Multiple media - show grid
+                    binding.singleMediaContainer.setVisibility(View.GONE);
+                    binding.mediaRecyclerView.setVisibility(View.VISIBLE);
+
+                    ChatMediaGridAdapter adapter = new ChatMediaGridAdapter(mediaUrls, mediaTypes);
+                    binding.mediaRecyclerView.setAdapter(adapter);
+                }
+            } else {
+                binding.mediaContainer.setVisibility(View.GONE);
+            }
         }
     }
 }

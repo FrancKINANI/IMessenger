@@ -11,23 +11,72 @@
         android:layout_width="25dp"
         android:layout_height="25dp"
         android:src="@drawable/logo"
-        app:layout_constraintBottom_toBottomOf="@id/textMessage"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <!-- Media Container -->
+    <LinearLayout
+        android:id="@+id/mediaContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@id/imageProfile"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintWidth_max="250dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/mediaRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="2" />
+
+        <!-- Single Image Display -->
+        <FrameLayout
+            android:id="@+id/singleMediaContainer"
+            android:layout_width="200dp"
+            android:layout_height="150dp"
+            android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/singleMediaImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:background="@drawable/background_received_message"
+                android:contentDescription="@string/media" />
+
+            <ImageView
+                android:id="@+id/videoPlayIcon"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_play_circle"
+                android:visibility="gone"
+                android:contentDescription="@string/video"
+                app:tint="@color/white" />
+
+        </FrameLayout>
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/textMessage"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
         android:background="@drawable/background_received_message"
         android:paddingStart="12dp"
         android:paddingTop="8dp"
         android:paddingEnd="12dp"
         android:paddingBottom="8dp"
-        android:textColor="@color/black"
+        android:textColor="?attr/colorOnSurface"
         android:textSize="13sp"
         app:layout_constraintStart_toEndOf="@id/imageProfile"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/mediaContainer"
         app:layout_constraintWidth_max="wrap" />
 
     <TextView

@@ -13,6 +13,9 @@
         <variable
             name="isLoading"
             type="Boolean" />
+        <variable
+            name="isUploading"
+            type="Boolean" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -24,7 +27,7 @@
             android:id="@+id/viewBackground"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:background="@color/background_gray"
+            android:background="?attr/colorSurface"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
@@ -84,7 +87,7 @@
             android:overScrollMode="never"
             android:padding="20dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toTopOf="@id/layoutSend"
+            app:layout_constraintBottom_toTopOf="@id/selectedMediaRecyclerView"
             app:layout_constraintTop_toBottomOf="@id/toolbar"
             app:stackFromEnd="true" />
 
@@ -98,44 +101,94 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <FrameLayout
-            android:id="@+id/layoutSend"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/background_chat_input"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent">
-
-            <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="4dp"
-                android:padding="8dp"
-                android:src="@drawable/ic_send"
-                android:tint="@color/white" />
-        </FrameLayout>
-
-        <EditText
-            android:id="@+id/inputMessage"
-            android:layout_width="0dp"
-            android:layout_height="40dp"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/background_chat_input"
-            android:hint="@string/type_message"
-            android:imeOptions="actionDone"
-            android:importantForAutofill="no"
-            android:inputType="text"
+        <!-- Selected Media Preview -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/selectedMediaRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
-            android:textColor="@color/white"
-            android:textColorHint="@color/white"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/layoutSend"
-            app:layout_constraintStart_toStartOf="parent" />
+            android:paddingTop="8dp"
+            android:paddingBottom="4dp"
+            android:visibility="gone"
+            android:clipToPadding="false"
+            app:layout_constraintBottom_toTopOf="@id/inputLayout" />
+
+        <!-- Input Layout with Media Buttons -->
+        <LinearLayout
+            android:id="@+id/inputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="12dp"
+            app:layout_constraintBottom_toBottomOf="parent">
+
+            <!-- Attachment Button -->
+            <ImageView
+                android:id="@+id/btnAttachImage"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_image"
+                android:contentDescription="@string/photo"
+                app:tint="?attr/colorPrimary" />
+
+            <ImageView
+                android:id="@+id/btnAttachVideo"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_video"
+                android:contentDescription="@string/video"
+                app:tint="?attr/colorPrimary" />
+
+            <EditText
+                android:id="@+id/inputMessage"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_weight="1"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="8dp"
+                android:background="@drawable/background_chat_input"
+                android:hint="@string/type_message"
+                android:imeOptions="actionDone"
+                android:importantForAutofill="no"
+                android:inputType="text"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="@color/white"
+                android:textColorHint="@color/white" />
+
+            <FrameLayout
+                android:id="@+id/layoutSend"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:background="@drawable/background_chat_input">
+
+                <ProgressBar
+                    android:id="@+id/uploadProgress"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center"
+                    android:visibility="@{isUploading ? View.VISIBLE : View.GONE}"
+                    android:indeterminateTint="@color/white" />
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/sendIcon"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="4dp"
+                    android:padding="8dp"
+                    android:src="@drawable/ic_send"
+                    android:visibility="@{isUploading ? View.GONE : View.VISIBLE}"
+                    app:tint="@color/white" />
+            </FrameLayout>
+
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -11,11 +11,28 @@
         app:cardCornerRadius="12dp"
         app:cardElevation="2dp">
 
-        <ImageView
-            android:id="@+id/ivMedia"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:scaleType="centerCrop" />
+            android:layout_height="match_parent">
+
+            <ImageView
+                android:id="@+id/ivMedia"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:scaleType="centerCrop"
+                android:contentDescription="@string/media" />
+
+            <ImageView
+                android:id="@+id/ivVideoIndicator"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_play_circle"
+                android:visibility="gone"
+                android:contentDescription="@string/video"
+                app:tint="@color/white" />
+
+        </FrameLayout>
 
     </androidx.cardview.widget.CardView>
 
@@ -28,6 +45,7 @@
         android:background="@drawable/background_button_circle"
         android:padding="4dp"
         android:src="@drawable/ic_close"
+        android:contentDescription="@string/delete"
         app:tint="@color/white" />
 
 </FrameLayout>

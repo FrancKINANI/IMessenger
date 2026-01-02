@@ -1,6 +1,8 @@
 package i.imessenger.viewmodels;
 
 import android.app.Application;
+import android.net.Uri;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -22,7 +24,9 @@ public class ChatViewModel extends AndroidViewModel {
 
     private final ChatRepository chatRepository;
     private LiveData<List<ChatMessage>> messagesLiveData;
-    
+    private MutableLiveData<Boolean> isUploading = new MutableLiveData<>(false);
+    private MutableLiveData<String> uploadError = new MutableLiveData<>();
+
     private String currentUserId;
     private String receiverId;
     private String groupId;
@@ -37,6 +41,14 @@ public class ChatViewModel extends AndroidViewModel {
 
     public LiveData<List<ChatMessage>> getMessages() {
         return messagesLiveData;
+    }
+
+    public LiveData<Boolean> getIsUploading() {
+        return isUploading;
+    }
+
+    public LiveData<String> getUploadError() {
+        return uploadError;
     }
 
     public LiveData<Group> getGroupInfo(String groupId) {
@@ -62,6 +74,7 @@ public class ChatViewModel extends AndroidViewModel {
         message.receiverId = receiverId;
         message.groupId = groupId;
         message.message = messageText;
+        message.messageType = "text";
         message.dateTime = getReadableDateTime(new java.util.Date());
         message.dateObject = new java.util.Date();
         
@@ -73,6 +86,53 @@ public class ChatViewModel extends AndroidViewModel {
         chatRepository.sendMessage(message);
     }
     
+    public void sendMediaMessage(String messageText, List<Uri> mediaUris, List<String> mediaTypes,
+                                  String conversionId, String conversionName, String conversionImage) {
+        if (currentUserId == null) return;
+        if (mediaUris == null || mediaUris.isEmpty()) {
+            if (messageText != null && !messageText.trim().isEmpty()) {
+                sendMessage(messageText, conversionId, conversionName, conversionImage);
+            }
+            return;
+        }
+
+        isUploading.setValue(true);
+
+        ChatMessage message = new ChatMessage();
+        message.senderId = currentUserId;
+        message.receiverId = receiverId;
+        message.groupId = groupId;
+        message.message = messageText != null ? messageText : "";
+        message.dateTime = getReadableDateTime(new java.util.Date());
+        message.dateObject = new java.util.Date();
+        message.mediaTypes = mediaTypes;
+
+        // Determine message type
+        if (mediaTypes.contains("video")) {
+            message.messageType = mediaTypes.contains("image") ? "mixed" : "video";
+        } else {
+            message.messageType = "image";
+        }
+
+        // Conversion info
+        message.conversionId = conversionId;
+        message.conversionName = conversionName;
+        message.conversionImage = conversionImage;
+
+        chatRepository.sendMediaMessage(message, mediaUris, new ChatRepository.MediaUploadCallback() {
+            @Override
+            public void onSuccess() {
+                isUploading.postValue(false);
+            }
+
+            @Override
+            public void onError(String error) {
+                isUploading.postValue(false);
+                uploadError.postValue(error);
+            }
+        });
+    }
+
     private String getReadableDateTime(java.util.Date date) {
         return new java.text.SimpleDateFormat("MMMM dd, yyyy - hh:mm a", java.util.Locale.getDefault()).format(date);
     }

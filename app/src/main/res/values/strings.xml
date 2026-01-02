@@ -162,4 +162,10 @@
     <string name="error_occurred">An error occurred</string>
     <string name="loading">Loading...</string>
     <string name="permission_denied">Permission denied. Please grant access in settings.</string>
+
+    <!-- Chat Media -->
+    <string name="attach_image">Attach Image</string>
+    <string name="attach_video">Attach Video</string>
+    <string name="sending_media">Sending media...</string>
+    <string name="media_sent">Media sent</string>
 </resources>

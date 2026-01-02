@@ -2,8 +2,11 @@ package i.imessenger.database;
 
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+import androidx.room.TypeConverters;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import i.imessenger.models.ChatMessage;
 
@@ -23,6 +26,11 @@ public class ChatMessageEntity {
     public String conversionImage;
     public String groupId;
 
+    // Media fields - stored as comma-separated strings for simplicity
+    public String mediaUrls; // Comma separated
+    public String mediaTypes; // Comma separated
+    public String messageType;
+
     public ChatMessageEntity() {}
 
     // Constructor to convert from Firestore model
@@ -37,6 +45,15 @@ public class ChatMessageEntity {
         this.conversionName = chatMessage.conversionName;
         this.conversionImage = chatMessage.conversionImage;
         this.groupId = chatMessage.groupId;
+        this.messageType = chatMessage.messageType;
+
+        // Convert lists to comma-separated strings
+        if (chatMessage.mediaUrls != null && !chatMessage.mediaUrls.isEmpty()) {
+            this.mediaUrls = String.join(",", chatMessage.mediaUrls);
+        }
+        if (chatMessage.mediaTypes != null && !chatMessage.mediaTypes.isEmpty()) {
+            this.mediaTypes = String.join(",", chatMessage.mediaTypes);
+        }
     }
 
     public ChatMessage toChatMessage() {
@@ -51,6 +68,22 @@ public class ChatMessageEntity {
         chatMessage.conversionName = this.conversionName;
         chatMessage.conversionImage = this.conversionImage;
         chatMessage.groupId = this.groupId;
+        chatMessage.messageType = this.messageType;
+
+        // Convert comma-separated strings back to lists
+        if (this.mediaUrls != null && !this.mediaUrls.isEmpty()) {
+            chatMessage.mediaUrls = new ArrayList<>();
+            for (String url : this.mediaUrls.split(",")) {
+                chatMessage.mediaUrls.add(url);
+            }
+        }
+        if (this.mediaTypes != null && !this.mediaTypes.isEmpty()) {
+            chatMessage.mediaTypes = new ArrayList<>();
+            for (String type : this.mediaTypes.split(",")) {
+                chatMessage.mediaTypes.add(type);
+            }
+        }
+
         return chatMessage;
     }
 }

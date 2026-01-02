@@ -19,36 +19,54 @@ import i.imessenger.R;
 
 public class SelectedMediaAdapter extends RecyclerView.Adapter<SelectedMediaAdapter.MediaViewHolder> {
 
-    private Context context;
     private List<Uri> mediaUris;
+    private List<String> mediaTypes;
     private OnRemoveMediaListener listener;
 
     public interface OnRemoveMediaListener {
         void onRemove(int position);
     }
 
-    public SelectedMediaAdapter(Context context, List<Uri> mediaUris, OnRemoveMediaListener listener) {
-        this.context = context;
+    // New constructor with mediaTypes
+    public SelectedMediaAdapter(List<Uri> mediaUris, List<String> mediaTypes, OnRemoveMediaListener listener) {
         this.mediaUris = mediaUris;
+        this.mediaTypes = mediaTypes;
+        this.listener = listener;
+    }
+
+    // Legacy constructor for backwards compatibility
+    public SelectedMediaAdapter(Context context, List<Uri> mediaUris, OnRemoveMediaListener listener) {
+        this.mediaUris = mediaUris;
+        this.mediaTypes = null;
         this.listener = listener;
     }
 
     @NonNull
     @Override
     public MediaViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_selected_media, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_selected_media, parent, false);
         return new MediaViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MediaViewHolder holder, int position) {
         Uri uri = mediaUris.get(position);
+        Context context = holder.itemView.getContext();
 
         Glide.with(context)
                 .load(uri)
                 .placeholder(R.drawable.logo)
                 .centerCrop()
                 .into(holder.ivMedia);
+
+        // Show video indicator if applicable
+        if (holder.ivVideoIndicator != null) {
+            if (mediaTypes != null && position < mediaTypes.size() && "video".equals(mediaTypes.get(position))) {
+                holder.ivVideoIndicator.setVisibility(View.VISIBLE);
+            } else {
+                holder.ivVideoIndicator.setVisibility(View.GONE);
+            }
+        }
 
         holder.btnRemove.setOnClickListener(v -> {
             if (listener != null) {
@@ -59,7 +77,7 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<SelectedMediaAdap
 
     @Override
     public int getItemCount() {
-        return mediaUris.size();
+        return mediaUris != null ? mediaUris.size() : 0;
     }
 
     public void updateMedia(List<Uri> newMedia) {
@@ -69,11 +87,13 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<SelectedMediaAdap
 
     static class MediaViewHolder extends RecyclerView.ViewHolder {
         ImageView ivMedia;
+        ImageView ivVideoIndicator;
         ImageButton btnRemove;
 
         MediaViewHolder(@NonNull View itemView) {
             super(itemView);
             ivMedia = itemView.findViewById(R.id.ivMedia);
+            ivVideoIndicator = itemView.findViewById(R.id.ivVideoIndicator);
             btnRemove = itemView.findViewById(R.id.btnRemove);
         }
     }
