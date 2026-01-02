@@ -102,24 +102,24 @@ public class FeedRepository {
     }
 
     public LiveData<Boolean> createPost(String content, List<Uri> mediaUris, List<String> mediaTypes,
-                                         String visibility, String targetClass, User author) {
+                                         List<String> mediaNames, String visibility, String targetClass, User author) {
         MutableLiveData<Boolean> result = new MutableLiveData<>();
 
         if (mediaUris != null && !mediaUris.isEmpty()) {
-            uploadMediaAndCreatePost(content, mediaUris, mediaTypes, visibility, targetClass, author, result);
+            uploadMediaAndCreatePost(content, mediaUris, mediaTypes, mediaNames, visibility, targetClass, author, result);
         } else {
-            createPostDocument(content, new ArrayList<>(), new ArrayList<>(), visibility, targetClass, author, result);
+            createPostDocument(content, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), visibility, targetClass, author, result);
         }
 
         return result;
     }
 
     private void uploadMediaAndCreatePost(String content, List<Uri> mediaUris, List<String> mediaTypes,
-                                          String visibility, String targetClass, User author,
+                                          List<String> mediaNames, String visibility, String targetClass, User author,
                                           MutableLiveData<Boolean> result) {
         List<String> uploadedUrls = new ArrayList<>();
         uploadMediaRecursively(mediaUris, mediaTypes, 0, uploadedUrls, () -> {
-            createPostDocument(content, uploadedUrls, mediaTypes, visibility, targetClass, author, result);
+            createPostDocument(content, uploadedUrls, mediaTypes, mediaNames, visibility, targetClass, author, result);
         }, () -> result.setValue(false));
     }
 
@@ -140,8 +140,21 @@ public class FeedRepository {
         // Safe access to mediaTypes - default to "image" if index is out of bounds
         String type = (mediaTypes != null && index < mediaTypes.size()) ? mediaTypes.get(index) : "image";
         String fileName = UUID.randomUUID().toString();
-        String extension = type.equals("video") ? ".mp4" : ".jpg";
-        String path = type.equals("video") ? "posts/videos/" + fileName + extension : "posts/images/" + fileName + extension;
+        String extension;
+        String folder;
+
+        if ("video".equals(type)) {
+            extension = ".mp4";
+            folder = "posts/videos/";
+        } else if ("document".equals(type)) {
+            extension = ""; // Keep original extension from URI
+            folder = "posts/documents/";
+        } else {
+            extension = ".jpg";
+            folder = "posts/images/";
+        }
+
+        String path = folder + fileName + extension;
 
         Log.d(TAG, "Uploading media: " + uri.toString() + " to path: " + path);
 
@@ -164,7 +177,7 @@ public class FeedRepository {
     }
 
     private void createPostDocument(String content, List<String> mediaUrls, List<String> mediaTypes,
-                                    String visibility, String targetClass, User author,
+                                    List<String> mediaNames, String visibility, String targetClass, User author,
                                     MutableLiveData<Boolean> result) {
         String postId = db.collection("posts").document().getId();
 
@@ -181,6 +194,7 @@ public class FeedRepository {
                 visibility,
                 targetClass
         );
+        post.setMediaNames(mediaNames);
 
         Log.d(TAG, "Creating post with " + mediaUrls.size() + " media items");
 

@@ -24,10 +24,19 @@ public class ChatMediaGridAdapter extends RecyclerView.Adapter<ChatMediaGridAdap
 
     private final List<String> mediaUrls;
     private final List<String> mediaTypes;
+    private final List<String> mediaNames;
 
+    public ChatMediaGridAdapter(List<String> mediaUrls, List<String> mediaTypes, List<String> mediaNames) {
+        this.mediaUrls = mediaUrls;
+        this.mediaTypes = mediaTypes;
+        this.mediaNames = mediaNames;
+    }
+
+    // Legacy constructor for backwards compatibility
     public ChatMediaGridAdapter(List<String> mediaUrls, List<String> mediaTypes) {
         this.mediaUrls = mediaUrls;
         this.mediaTypes = mediaTypes;
+        this.mediaNames = null;
     }
 
     @NonNull
@@ -42,17 +51,25 @@ public class ChatMediaGridAdapter extends RecyclerView.Adapter<ChatMediaGridAdap
     public void onBindViewHolder(@NonNull MediaViewHolder holder, int position) {
         String url = mediaUrls.get(position);
         String type = mediaTypes != null && position < mediaTypes.size() ? mediaTypes.get(position) : "image";
+        String name = mediaNames != null && position < mediaNames.size() ? mediaNames.get(position) : "file";
         Context context = holder.itemView.getContext();
 
-        Glide.with(context)
-                .load(url)
-                .transform(new CenterCrop(), new RoundedCorners(12))
-                .into(holder.imageView);
-
-        if ("video".equals(type)) {
-            holder.playIcon.setVisibility(View.VISIBLE);
-        } else {
+        if ("document".equals(type)) {
+            holder.imageView.setImageResource(R.drawable.ic_document);
+            holder.imageView.setScaleType(android.widget.ImageView.ScaleType.CENTER);
             holder.playIcon.setVisibility(View.GONE);
+        } else {
+            holder.imageView.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
+            Glide.with(context)
+                    .load(url)
+                    .transform(new CenterCrop(), new RoundedCorners(12))
+                    .into(holder.imageView);
+
+            if ("video".equals(type)) {
+                holder.playIcon.setVisibility(View.VISIBLE);
+            } else {
+                holder.playIcon.setVisibility(View.GONE);
+            }
         }
 
         holder.container.setOnClickListener(v -> {
@@ -60,6 +77,8 @@ public class ChatMediaGridAdapter extends RecyclerView.Adapter<ChatMediaGridAdap
                 Intent intent = new Intent(Intent.ACTION_VIEW);
                 if ("video".equals(type)) {
                     intent.setDataAndType(Uri.parse(url), "video/*");
+                } else if ("document".equals(type)) {
+                    intent.setDataAndType(Uri.parse(url), "*/*");
                 } else {
                     intent.setDataAndType(Uri.parse(url), "image/*");
                 }

@@ -12,7 +12,8 @@ public class FeedPost {
     private String authorRole;
     private String content;
     private List<String> mediaUrls;
-    private List<String> mediaTypes; // "image" or "video"
+    private List<String> mediaTypes; // "image", "video", or "document"
+    private List<String> mediaNames; // Original file names for documents
     private Timestamp createdAt;
     private List<String> likedBy;
     private int commentCount;
@@ -23,6 +24,7 @@ public class FeedPost {
         // Required for Firestore
         this.mediaUrls = new ArrayList<>();
         this.mediaTypes = new ArrayList<>();
+        this.mediaNames = new ArrayList<>();
         this.likedBy = new ArrayList<>();
     }
 
@@ -68,6 +70,9 @@ public class FeedPost {
 
     public List<String> getMediaTypes() { return mediaTypes; }
     public void setMediaTypes(List<String> mediaTypes) { this.mediaTypes = mediaTypes; }
+
+    public List<String> getMediaNames() { return mediaNames; }
+    public void setMediaNames(List<String> mediaNames) { this.mediaNames = mediaNames; }
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }

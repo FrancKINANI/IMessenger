@@ -37,6 +37,7 @@ public class CreatePostFragment extends Fragment {
     private FeedViewModel feedViewModel;
     private List<Uri> selectedMediaUris = new ArrayList<>();
     private List<String> selectedMediaTypes = new ArrayList<>();
+    private List<String> selectedMediaNames = new ArrayList<>();
     private SelectedMediaAdapter mediaAdapter;
     private boolean pendingImagePick = false;
     private boolean pendingVideoPick = false;
@@ -69,6 +70,7 @@ public class CreatePostFragment extends Fragment {
                 if (uri != null) {
                     selectedMediaUris.add(uri);
                     selectedMediaTypes.add("image");
+                    selectedMediaNames.add(getFileName(uri));
                     updateMediaPreview();
                 }
             }
@@ -80,10 +82,44 @@ public class CreatePostFragment extends Fragment {
                 if (uri != null) {
                     selectedMediaUris.add(uri);
                     selectedMediaTypes.add("video");
+                    selectedMediaNames.add(getFileName(uri));
                     updateMediaPreview();
                 }
             }
     );
+
+    private final ActivityResultLauncher<String> pickDocument = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    selectedMediaUris.add(uri);
+                    selectedMediaTypes.add("document");
+                    selectedMediaNames.add(getFileName(uri));
+                    updateMediaPreview();
+                }
+            }
+    );
+
+    private String getFileName(Uri uri) {
+        String fileName = "file";
+        if (uri != null && getContext() != null) {
+            android.database.Cursor cursor = requireContext().getContentResolver()
+                    .query(uri, null, null, null, null);
+            if (cursor != null) {
+                try {
+                    if (cursor.moveToFirst()) {
+                        int nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                        if (nameIndex >= 0) {
+                            fileName = cursor.getString(nameIndex);
+                        }
+                    }
+                } finally {
+                    cursor.close();
+                }
+            }
+        }
+        return fileName;
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -122,9 +158,12 @@ public class CreatePostFragment extends Fragment {
     }
 
     private void setupMediaRecyclerView() {
-        mediaAdapter = new SelectedMediaAdapter(requireContext(), selectedMediaUris, position -> {
+        mediaAdapter = new SelectedMediaAdapter(selectedMediaUris, selectedMediaTypes, position -> {
             selectedMediaUris.remove(position);
             selectedMediaTypes.remove(position);
+            if (position < selectedMediaNames.size()) {
+                selectedMediaNames.remove(position);
+            }
             updateMediaPreview();
         });
         binding.recyclerViewMedia.setLayoutManager(
@@ -135,6 +174,7 @@ public class CreatePostFragment extends Fragment {
     private void setupClickListeners() {
         binding.btnAddImage.setOnClickListener(v -> checkAndPickImage());
         binding.btnAddVideo.setOnClickListener(v -> checkAndPickVideo());
+        binding.btnAddDocument.setOnClickListener(v -> launchDocumentPicker());
         binding.btnPost.setOnClickListener(v -> createPost());
     }
 
@@ -186,6 +226,10 @@ public class CreatePostFragment extends Fragment {
         pickVideo.launch("video/*");
     }
 
+    private void launchDocumentPicker() {
+        pickDocument.launch("*/*");
+    }
+
     private void loadUserInfo() {
         feedViewModel.getCurrentUser().observe(getViewLifecycleOwner(), user -> {
             if (user != null) {
@@ -225,7 +269,7 @@ public class CreatePostFragment extends Fragment {
         binding.loadingOverlay.setVisibility(View.VISIBLE);
         binding.btnPost.setEnabled(false);
 
-        feedViewModel.createPost(content, selectedMediaUris, selectedMediaTypes, visibility, null)
+        feedViewModel.createPost(content, selectedMediaUris, selectedMediaTypes, selectedMediaNames, visibility, null)
                 .observe(getViewLifecycleOwner(), success -> {
                     binding.loadingOverlay.setVisibility(View.GONE);
                     binding.btnPost.setEnabled(true);

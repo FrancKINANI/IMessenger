@@ -12,8 +12,9 @@ public class ChatMessage {
 
     // Media fields
     public List<String> mediaUrls;
-    public List<String> mediaTypes; // "image" or "video"
-    public String messageType; // "text", "image", "video", "mixed"
+    public List<String> mediaTypes; // "image", "video", or "document"
+    public List<String> mediaNames; // Original file names for documents
+    public String messageType; // "text", "image", "video", "document", "mixed"
 
     public ChatMessage() {
         this.messageType = "text";
@@ -21,5 +22,13 @@ public class ChatMessage {
 
     public boolean hasMedia() {
         return mediaUrls != null && !mediaUrls.isEmpty();
+    }
+
+    public boolean hasDocuments() {
+        if (mediaTypes == null) return false;
+        for (String type : mediaTypes) {
+            if ("document".equals(type)) return true;
+        }
+        return false;
     }
 }

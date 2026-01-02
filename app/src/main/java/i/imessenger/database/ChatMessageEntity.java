@@ -29,6 +29,7 @@ public class ChatMessageEntity {
     // Media fields - stored as comma-separated strings for simplicity
     public String mediaUrls; // Comma separated
     public String mediaTypes; // Comma separated
+    public String mediaNames; // Comma separated - for document file names
     public String messageType;
 
     public ChatMessageEntity() {}
@@ -53,6 +54,9 @@ public class ChatMessageEntity {
         }
         if (chatMessage.mediaTypes != null && !chatMessage.mediaTypes.isEmpty()) {
             this.mediaTypes = String.join(",", chatMessage.mediaTypes);
+        }
+        if (chatMessage.mediaNames != null && !chatMessage.mediaNames.isEmpty()) {
+            this.mediaNames = String.join(",", chatMessage.mediaNames);
         }
     }
 
@@ -81,6 +85,12 @@ public class ChatMessageEntity {
             chatMessage.mediaTypes = new ArrayList<>();
             for (String type : this.mediaTypes.split(",")) {
                 chatMessage.mediaTypes.add(type);
+            }
+        }
+        if (this.mediaNames != null && !this.mediaNames.isEmpty()) {
+            chatMessage.mediaNames = new ArrayList<>();
+            for (String name : this.mediaNames.split(",")) {
+                chatMessage.mediaNames.add(name);
             }
         }
 

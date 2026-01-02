@@ -16,6 +16,7 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 
 import java.util.List;
 
+import i.imessenger.R;
 import i.imessenger.databinding.ItemContainerReceivedMessageBinding;
 import i.imessenger.databinding.ItemContainerSentMessageBinding;
 import i.imessenger.models.ChatMessage;
@@ -106,6 +107,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 List<String> mediaUrls = chatMessage.mediaUrls;
                 List<String> mediaTypes = chatMessage.mediaTypes;
+                List<String> mediaNames = chatMessage.mediaNames;
 
                 if (mediaUrls.size() == 1) {
                     // Single media - show larger
@@ -114,18 +116,17 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     String url = mediaUrls.get(0);
                     String type = mediaTypes != null && !mediaTypes.isEmpty() ? mediaTypes.get(0) : "image";
+                    String name = mediaNames != null && !mediaNames.isEmpty() ? mediaNames.get(0) : "file";
 
-                    Glide.with(context)
-                            .load(url)
-                            .transform(new CenterCrop(), new RoundedCorners(16))
-                            .into(binding.singleMediaImage);
-
-                    if ("video".equals(type)) {
-                        binding.videoPlayIcon.setVisibility(View.VISIBLE);
+                    if ("document".equals(type)) {
+                        // Show document with icon
+                        binding.singleMediaImage.setImageResource(R.drawable.ic_document);
+                        binding.singleMediaImage.setScaleType(android.widget.ImageView.ScaleType.CENTER);
+                        binding.videoPlayIcon.setVisibility(View.GONE);
                         binding.singleMediaContainer.setOnClickListener(v -> {
                             try {
                                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setDataAndType(Uri.parse(url), "video/*");
+                                intent.setDataAndType(Uri.parse(url), "*/*");
                                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                                 context.startActivity(intent);
                             } catch (Exception e) {
@@ -133,25 +134,44 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             }
                         });
                     } else {
-                        binding.videoPlayIcon.setVisibility(View.GONE);
-                        binding.singleMediaContainer.setOnClickListener(v -> {
-                            try {
-                                // Open image viewer or full screen
-                                Intent intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setDataAndType(Uri.parse(url), "image/*");
-                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                context.startActivity(intent);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
+                        binding.singleMediaImage.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
+                        Glide.with(context)
+                                .load(url)
+                                .transform(new CenterCrop(), new RoundedCorners(16))
+                                .into(binding.singleMediaImage);
+
+                        if ("video".equals(type)) {
+                            binding.videoPlayIcon.setVisibility(View.VISIBLE);
+                            binding.singleMediaContainer.setOnClickListener(v -> {
+                                try {
+                                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                                    intent.setDataAndType(Uri.parse(url), "video/*");
+                                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                    context.startActivity(intent);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        } else {
+                            binding.videoPlayIcon.setVisibility(View.GONE);
+                            binding.singleMediaContainer.setOnClickListener(v -> {
+                                try {
+                                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                                    intent.setDataAndType(Uri.parse(url), "image/*");
+                                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                    context.startActivity(intent);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        }
                     }
                 } else {
                     // Multiple media - show grid
                     binding.singleMediaContainer.setVisibility(View.GONE);
                     binding.mediaRecyclerView.setVisibility(View.VISIBLE);
 
-                    ChatMediaGridAdapter adapter = new ChatMediaGridAdapter(mediaUrls, mediaTypes);
+                    ChatMediaGridAdapter adapter = new ChatMediaGridAdapter(mediaUrls, mediaTypes, mediaNames);
                     binding.mediaRecyclerView.setAdapter(adapter);
                 }
             } else {
@@ -187,6 +207,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                 List<String> mediaUrls = chatMessage.mediaUrls;
                 List<String> mediaTypes = chatMessage.mediaTypes;
+                List<String> mediaNames = chatMessage.mediaNames;
 
                 if (mediaUrls.size() == 1) {
                     // Single media - show larger
@@ -195,18 +216,17 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
                     String url = mediaUrls.get(0);
                     String type = mediaTypes != null && !mediaTypes.isEmpty() ? mediaTypes.get(0) : "image";
+                    String name = mediaNames != null && !mediaNames.isEmpty() ? mediaNames.get(0) : "file";
 
-                    Glide.with(context)
-                            .load(url)
-                            .transform(new CenterCrop(), new RoundedCorners(16))
-                            .into(binding.singleMediaImage);
-
-                    if ("video".equals(type)) {
-                        binding.videoPlayIcon.setVisibility(View.VISIBLE);
+                    if ("document".equals(type)) {
+                        // Show document with icon
+                        binding.singleMediaImage.setImageResource(R.drawable.ic_document);
+                        binding.singleMediaImage.setScaleType(android.widget.ImageView.ScaleType.CENTER);
+                        binding.videoPlayIcon.setVisibility(View.GONE);
                         binding.singleMediaContainer.setOnClickListener(v -> {
                             try {
                                 Intent intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setDataAndType(Uri.parse(url), "video/*");
+                                intent.setDataAndType(Uri.parse(url), "*/*");
                                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                                 context.startActivity(intent);
                             } catch (Exception e) {
@@ -214,24 +234,44 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
                             }
                         });
                     } else {
-                        binding.videoPlayIcon.setVisibility(View.GONE);
-                        binding.singleMediaContainer.setOnClickListener(v -> {
-                            try {
-                                Intent intent = new Intent(Intent.ACTION_VIEW);
-                                intent.setDataAndType(Uri.parse(url), "image/*");
-                                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                                context.startActivity(intent);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                        });
+                        binding.singleMediaImage.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
+                        Glide.with(context)
+                                .load(url)
+                                .transform(new CenterCrop(), new RoundedCorners(16))
+                                .into(binding.singleMediaImage);
+
+                        if ("video".equals(type)) {
+                            binding.videoPlayIcon.setVisibility(View.VISIBLE);
+                            binding.singleMediaContainer.setOnClickListener(v -> {
+                                try {
+                                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                                    intent.setDataAndType(Uri.parse(url), "video/*");
+                                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                    context.startActivity(intent);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        } else {
+                            binding.videoPlayIcon.setVisibility(View.GONE);
+                            binding.singleMediaContainer.setOnClickListener(v -> {
+                                try {
+                                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                                    intent.setDataAndType(Uri.parse(url), "image/*");
+                                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                                    context.startActivity(intent);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            });
+                        }
                     }
                 } else {
                     // Multiple media - show grid
                     binding.singleMediaContainer.setVisibility(View.GONE);
                     binding.mediaRecyclerView.setVisibility(View.VISIBLE);
 
-                    ChatMediaGridAdapter adapter = new ChatMediaGridAdapter(mediaUrls, mediaTypes);
+                    ChatMediaGridAdapter adapter = new ChatMediaGridAdapter(mediaUrls, mediaTypes, mediaNames);
                     binding.mediaRecyclerView.setAdapter(adapter);
                 }
             } else {

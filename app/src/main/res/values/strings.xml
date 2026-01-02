@@ -166,6 +166,15 @@
     <!-- Chat Media -->
     <string name="attach_image">Attach Image</string>
     <string name="attach_video">Attach Video</string>
+    <string name="attach_document">Attach Document</string>
     <string name="sending_media">Sending media...</string>
     <string name="media_sent">Media sent</string>
+    <string name="document">Document</string>
+    <string name="documents">Documents</string>
+    <string name="open_document">Open Document</string>
+    <string name="download_document">Download Document</string>
+    <string name="document_pdf">PDF Document</string>
+    <string name="document_word">Word Document</string>
+    <string name="document_excel">Excel Document</string>
+    <string name="document_file">File</string>
 </resources>

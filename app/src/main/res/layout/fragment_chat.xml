@@ -146,6 +146,15 @@
                 android:contentDescription="@string/video"
                 app:tint="?attr/colorPrimary" />
 
+            <ImageView
+                android:id="@+id/btnAttachDocument"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:padding="6dp"
+                android:src="@drawable/ic_document"
+                android:contentDescription="@string/document"
+                app:tint="?attr/colorPrimary" />
+
             <EditText
                 android:id="@+id/inputMessage"
                 android:layout_width="0dp"

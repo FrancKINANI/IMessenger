@@ -156,9 +156,11 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.PostVi
         private void setupMedia(FeedPost post) {
             List<String> mediaUrls = post.getMediaUrls();
             List<String> mediaTypes = post.getMediaTypes();
+            List<String> mediaNames = post.getMediaNames();
 
             if (mediaUrls.size() == 1) {
                 String type = mediaTypes.isEmpty() ? "image" : mediaTypes.get(0);
+                String name = (mediaNames != null && !mediaNames.isEmpty()) ? mediaNames.get(0) : "file";
 
                 if ("video".equals(type)) {
                     binding.ivSingleMedia.setVisibility(View.GONE);
@@ -169,11 +171,20 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.PostVi
                             .load(mediaUrls.get(0))
                             .placeholder(R.drawable.logo)
                             .into(binding.ivVideoThumbnail);
+                } else if ("document".equals(type)) {
+                    binding.ivSingleMedia.setVisibility(View.VISIBLE);
+                    binding.videoContainer.setVisibility(View.GONE);
+                    binding.recyclerViewMedia.setVisibility(View.GONE);
+
+                    // Show document icon
+                    binding.ivSingleMedia.setImageResource(R.drawable.ic_document);
+                    binding.ivSingleMedia.setScaleType(android.widget.ImageView.ScaleType.CENTER);
                 } else {
                     binding.ivSingleMedia.setVisibility(View.VISIBLE);
                     binding.videoContainer.setVisibility(View.GONE);
                     binding.recyclerViewMedia.setVisibility(View.GONE);
 
+                    binding.ivSingleMedia.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
                     Glide.with(context)
                             .load(mediaUrls.get(0))
                             .placeholder(R.drawable.logo)
@@ -184,7 +195,11 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.PostVi
                 binding.ivSingleMedia.setVisibility(View.GONE);
                 binding.videoContainer.setVisibility(View.GONE);
                 binding.recyclerViewMedia.setVisibility(View.VISIBLE);
-                // TODO: Setup media grid adapter
+
+                MediaGridAdapter adapter = new MediaGridAdapter(context, mediaUrls, mediaTypes, (url, position) -> {
+                    if (listener != null) listener.onMediaClicked(post, position);
+                });
+                binding.recyclerViewMedia.setAdapter(adapter);
             }
         }
 

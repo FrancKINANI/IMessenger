@@ -87,7 +87,7 @@ public class ChatViewModel extends AndroidViewModel {
     }
     
     public void sendMediaMessage(String messageText, List<Uri> mediaUris, List<String> mediaTypes,
-                                  String conversionId, String conversionName, String conversionImage) {
+                                  List<String> mediaNames, String conversionId, String conversionName, String conversionImage) {
         if (currentUserId == null) return;
         if (mediaUris == null || mediaUris.isEmpty()) {
             if (messageText != null && !messageText.trim().isEmpty()) {
@@ -106,9 +106,12 @@ public class ChatViewModel extends AndroidViewModel {
         message.dateTime = getReadableDateTime(new java.util.Date());
         message.dateObject = new java.util.Date();
         message.mediaTypes = mediaTypes;
+        message.mediaNames = mediaNames;
 
         // Determine message type
-        if (mediaTypes.contains("video")) {
+        if (mediaTypes.contains("document")) {
+            message.messageType = mediaTypes.size() == 1 ? "document" : "mixed";
+        } else if (mediaTypes.contains("video")) {
             message.messageType = mediaTypes.contains("image") ? "mixed" : "video";
         } else {
             message.messageType = "image";

@@ -24,15 +24,35 @@ public class MediaGridAdapter extends RecyclerView.Adapter<MediaGridAdapter.Medi
     private List<MediaItem> mediaItems;
     private OnMediaClickListener listener;
 
+    // For URL-based media
+    private List<String> mediaUrls;
+    private List<String> mediaTypes;
+    private OnUrlMediaClickListener urlListener;
+
     public interface OnMediaClickListener {
         void onMediaClicked(MediaItem mediaItem, int position);
         void onMediaLongClicked(MediaItem mediaItem, int position);
+    }
+
+    public interface OnUrlMediaClickListener {
+        void onMediaClicked(String url, int position);
     }
 
     public MediaGridAdapter(Context context, List<MediaItem> mediaItems, OnMediaClickListener listener) {
         this.context = context;
         this.mediaItems = mediaItems;
         this.listener = listener;
+        this.mediaUrls = null;
+        this.mediaTypes = null;
+    }
+
+    // Constructor for URL-based media (used in feed posts)
+    public MediaGridAdapter(Context context, List<String> mediaUrls, List<String> mediaTypes, OnUrlMediaClickListener listener) {
+        this.context = context;
+        this.mediaUrls = mediaUrls;
+        this.mediaTypes = mediaTypes;
+        this.urlListener = listener;
+        this.mediaItems = null;
     }
 
     @NonNull
@@ -44,13 +64,24 @@ public class MediaGridAdapter extends RecyclerView.Adapter<MediaGridAdapter.Medi
 
     @Override
     public void onBindViewHolder(@NonNull MediaViewHolder holder, int position) {
-        MediaItem item = mediaItems.get(position);
-        holder.bind(item, position);
+        if (mediaUrls != null) {
+            // URL-based binding
+            String url = mediaUrls.get(position);
+            String type = (mediaTypes != null && position < mediaTypes.size()) ? mediaTypes.get(position) : "image";
+            holder.bindUrl(url, type, position);
+        } else if (mediaItems != null) {
+            // MediaItem-based binding
+            MediaItem item = mediaItems.get(position);
+            holder.bind(item, position);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return mediaItems.size();
+        if (mediaUrls != null) {
+            return mediaUrls.size();
+        }
+        return mediaItems != null ? mediaItems.size() : 0;
     }
 
     public void updateMedia(List<MediaItem> newMedia) {
@@ -108,6 +139,40 @@ public class MediaGridAdapter extends RecyclerView.Adapter<MediaGridAdapter.Medi
                     return true;
                 }
                 return false;
+            });
+        }
+
+        void bindUrl(String url, String type, int position) {
+            if ("document".equals(type)) {
+                ivThumbnail.setImageResource(R.drawable.ic_document);
+                ivThumbnail.setScaleType(ImageView.ScaleType.CENTER);
+                videoOverlay.setVisibility(View.GONE);
+                ivPlayIcon.setVisibility(View.GONE);
+                tvDuration.setVisibility(View.GONE);
+            } else if ("video".equals(type)) {
+                ivThumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                Glide.with(context)
+                        .load(url)
+                        .placeholder(R.drawable.logo)
+                        .centerCrop()
+                        .into(ivThumbnail);
+                videoOverlay.setVisibility(View.VISIBLE);
+                ivPlayIcon.setVisibility(View.VISIBLE);
+                tvDuration.setVisibility(View.GONE);
+            } else {
+                ivThumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                Glide.with(context)
+                        .load(url)
+                        .placeholder(R.drawable.logo)
+                        .centerCrop()
+                        .into(ivThumbnail);
+                videoOverlay.setVisibility(View.GONE);
+                ivPlayIcon.setVisibility(View.GONE);
+                tvDuration.setVisibility(View.GONE);
+            }
+
+            itemView.setOnClickListener(v -> {
+                if (urlListener != null) urlListener.onMediaClicked(url, position);
             });
         }
     }

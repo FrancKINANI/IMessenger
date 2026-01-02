@@ -52,16 +52,26 @@ public class SelectedMediaAdapter extends RecyclerView.Adapter<SelectedMediaAdap
     public void onBindViewHolder(@NonNull MediaViewHolder holder, int position) {
         Uri uri = mediaUris.get(position);
         Context context = holder.itemView.getContext();
+        String type = (mediaTypes != null && position < mediaTypes.size()) ? mediaTypes.get(position) : "image";
 
-        Glide.with(context)
-                .load(uri)
-                .placeholder(R.drawable.logo)
-                .centerCrop()
-                .into(holder.ivMedia);
+        // Handle different media types
+        if ("document".equals(type)) {
+            // Show document icon instead of trying to load with Glide
+            holder.ivMedia.setImageResource(R.drawable.ic_document);
+            holder.ivMedia.setScaleType(android.widget.ImageView.ScaleType.CENTER);
+            holder.ivMedia.setBackgroundColor(context.getResources().getColor(R.color.card_background_elevated, null));
+        } else {
+            holder.ivMedia.setScaleType(android.widget.ImageView.ScaleType.CENTER_CROP);
+            Glide.with(context)
+                    .load(uri)
+                    .placeholder(R.drawable.logo)
+                    .centerCrop()
+                    .into(holder.ivMedia);
+        }
 
         // Show video indicator if applicable
         if (holder.ivVideoIndicator != null) {
-            if (mediaTypes != null && position < mediaTypes.size() && "video".equals(mediaTypes.get(position))) {
+            if ("video".equals(type)) {
                 holder.ivVideoIndicator.setVisibility(View.VISIBLE);
             } else {
                 holder.ivVideoIndicator.setVisibility(View.GONE);

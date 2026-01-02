@@ -46,14 +46,14 @@ public class FeedViewModel extends ViewModel {
     }
 
     public LiveData<Boolean> createPost(String content, List<Uri> mediaUris, List<String> mediaTypes,
-                                         String visibility, String targetClass) {
+                                         List<String> mediaNames, String visibility, String targetClass) {
         User user = currentUser.getValue();
         if (user == null) {
             MutableLiveData<Boolean> result = new MutableLiveData<>();
             result.setValue(false);
             return result;
         }
-        return feedRepository.createPost(content, mediaUris, mediaTypes, visibility, targetClass, user);
+        return feedRepository.createPost(content, mediaUris, mediaTypes, mediaNames, visibility, targetClass, user);
     }
 
     public void toggleLike(String postId) {

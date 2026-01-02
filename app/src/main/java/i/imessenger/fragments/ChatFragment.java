@@ -45,6 +45,7 @@ public class ChatFragment extends Fragment {
     // Media selection
     private List<Uri> selectedMediaUris = new ArrayList<>();
     private List<String> selectedMediaTypes = new ArrayList<>();
+    private List<String> selectedMediaNames = new ArrayList<>();
     private SelectedMediaAdapter mediaAdapter;
 
     private final ActivityResultLauncher<String> requestImagePermission = registerForActivityResult(
@@ -75,6 +76,7 @@ public class ChatFragment extends Fragment {
                 if (uri != null) {
                     selectedMediaUris.add(uri);
                     selectedMediaTypes.add("image");
+                    selectedMediaNames.add(getFileName(uri));
                     updateMediaPreview();
                 }
             }
@@ -86,10 +88,44 @@ public class ChatFragment extends Fragment {
                 if (uri != null) {
                     selectedMediaUris.add(uri);
                     selectedMediaTypes.add("video");
+                    selectedMediaNames.add(getFileName(uri));
                     updateMediaPreview();
                 }
             }
     );
+
+    private final ActivityResultLauncher<String> pickDocument = registerForActivityResult(
+            new ActivityResultContracts.GetContent(),
+            uri -> {
+                if (uri != null) {
+                    selectedMediaUris.add(uri);
+                    selectedMediaTypes.add("document");
+                    selectedMediaNames.add(getFileName(uri));
+                    updateMediaPreview();
+                }
+            }
+    );
+
+    private String getFileName(Uri uri) {
+        String fileName = "document";
+        if (uri != null && getContext() != null) {
+            android.database.Cursor cursor = requireContext().getContentResolver()
+                    .query(uri, null, null, null, null);
+            if (cursor != null) {
+                try {
+                    if (cursor.moveToFirst()) {
+                        int nameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                        if (nameIndex >= 0) {
+                            fileName = cursor.getString(nameIndex);
+                        }
+                    }
+                } finally {
+                    cursor.close();
+                }
+            }
+        }
+        return fileName;
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -184,6 +220,9 @@ public class ChatFragment extends Fragment {
         mediaAdapter = new SelectedMediaAdapter(selectedMediaUris, selectedMediaTypes, position -> {
             selectedMediaUris.remove(position);
             selectedMediaTypes.remove(position);
+            if (position < selectedMediaNames.size()) {
+                selectedMediaNames.remove(position);
+            }
             updateMediaPreview();
         });
         binding.selectedMediaRecyclerView.setLayoutManager(
@@ -227,6 +266,10 @@ public class ChatFragment extends Fragment {
                 }
             }
         });
+
+        binding.btnAttachDocument.setOnClickListener(v -> {
+            launchDocumentPicker();
+        });
     }
 
     private void launchImagePicker() {
@@ -235,6 +278,10 @@ public class ChatFragment extends Fragment {
 
     private void launchVideoPicker() {
         pickVideo.launch("video/*");
+    }
+
+    private void launchDocumentPicker() {
+        pickDocument.launch("*/*");
     }
 
     private void updateMediaPreview() {
@@ -263,12 +310,14 @@ public class ChatFragment extends Fragment {
                 messageText,
                 new ArrayList<>(selectedMediaUris),
                 new ArrayList<>(selectedMediaTypes),
+                new ArrayList<>(selectedMediaNames),
                 null, null, null
             );
 
             // Clear selection
             selectedMediaUris.clear();
             selectedMediaTypes.clear();
+            selectedMediaNames.clear();
             updateMediaPreview();
         } else {
             // Text only message
