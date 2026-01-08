@@ -134,9 +134,13 @@ public class UserPostsFragment extends Fragment implements FeedPostAdapter.OnPos
     }
 
     @Override
+    public void onReportClicked(FeedPost post) {
+        // TODO: Handle report click
+    }
+
+    @Override
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
     }
 }
-

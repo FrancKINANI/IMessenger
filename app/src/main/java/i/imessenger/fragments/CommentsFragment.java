@@ -34,7 +34,7 @@ public class CommentsFragment extends Fragment implements CommentAdapter.OnComme
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         binding = FragmentCommentsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -54,6 +54,9 @@ public class CommentsFragment extends Fragment implements CommentAdapter.OnComme
 
         feedViewModel = new ViewModelProvider(this).get(FeedViewModel.class);
 
+        // Increment view count
+        feedViewModel.incrementViewCount(postId);
+
         setupToolbar();
         setupRecyclerView();
         setupClickListeners();
@@ -62,8 +65,7 @@ public class CommentsFragment extends Fragment implements CommentAdapter.OnComme
     }
 
     private void setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener(v ->
-                NavHostFragment.findNavController(this).navigateUp());
+        binding.toolbar.setNavigationOnClickListener(v -> NavHostFragment.findNavController(this).navigateUp());
     }
 
     private void setupRecyclerView() {
@@ -148,4 +150,3 @@ public class CommentsFragment extends Fragment implements CommentAdapter.OnComme
         binding = null;
     }
 }
-

@@ -10,7 +10,7 @@ public class RegisterViewModel extends ViewModel {
     private final AuthRepository authRepository;
 
     public RegisterViewModel() {
-        authRepository = new AuthRepository();
+        authRepository = AuthRepository.getInstance();
     }
 
     public LiveData<Boolean> register(String email, String password, String name, String role, String level) {

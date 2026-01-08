@@ -74,9 +74,7 @@ public class ProjectsFragment extends Fragment implements ProjectAdapter.OnProje
     }
 
     private void setupToolbar() {
-        binding.toolbar.setNavigationOnClickListener(v ->
-            Navigation.findNavController(v).navigateUp()
-        );
+        binding.toolbar.setNavigationOnClickListener(v -> Navigation.findNavController(v).navigateUp());
     }
 
     private void setupTabs() {
@@ -98,10 +96,12 @@ public class ProjectsFragment extends Fragment implements ProjectAdapter.OnProje
             }
 
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
+            public void onTabUnselected(TabLayout.Tab tab) {
+            }
 
             @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
+            public void onTabReselected(TabLayout.Tab tab) {
+            }
         });
     }
 
@@ -112,36 +112,41 @@ public class ProjectsFragment extends Fragment implements ProjectAdapter.OnProje
     }
 
     private void loadUserInfo() {
-        if (currentUserId.isEmpty()) return;
+        if (currentUserId.isEmpty())
+            return;
 
         db.collection("users").document(currentUserId)
-            .get()
-            .addOnSuccessListener(doc -> {
-                if (doc.exists()) {
-                    User user = doc.toObject(User.class);
-                    if (user != null) {
-                        userName = user.getFullName() != null ? user.getFullName() : "";
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        User user = doc.toObject(User.class);
+                        if (user != null) {
+                            userName = user.getFullName() != null ? user.getFullName() : "";
+                        }
                     }
-                }
-                loadProjects();
-            });
+                    loadProjects();
+                });
     }
 
     private void loadProjects() {
-        db.collection("projects")
-            .whereEqualTo("projectType", currentFilter)
-            .whereArrayContains("members", currentUserId)
-            .get()
-            .addOnSuccessListener(querySnapshot -> {
-                List<Project> projects = new ArrayList<>();
-                for (QueryDocumentSnapshot doc : querySnapshot) {
-                    Project project = doc.toObject(Project.class);
-                    projects.add(project);
-                }
+        com.google.firebase.firestore.Query query = db.collection("projects")
+                .whereEqualTo("projectType", currentFilter);
 
-                adapter.setProjects(projects);
-                binding.textNoProjects.setVisibility(projects.isEmpty() ? View.VISIBLE : View.GONE);
-            });
+        if (!"CLUB".equals(currentFilter)) {
+            query = query.whereArrayContains("members", currentUserId);
+        }
+
+        query.get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<Project> projects = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        Project project = doc.toObject(Project.class);
+                        projects.add(project);
+                    }
+
+                    adapter.setProjects(projects);
+                    binding.textNoProjects.setVisibility(projects.isEmpty() ? View.VISIBLE : View.GONE);
+                });
     }
 
     private void showAddProjectDialog() {
@@ -164,8 +169,8 @@ public class ProjectsFragment extends Fragment implements ProjectAdapter.OnProje
         });
 
         AlertDialog dialog = new MaterialAlertDialogBuilder(getContext())
-            .setView(dialogView)
-            .create();
+                .setView(dialogView)
+                .create();
 
         dialogView.findViewById(R.id.btnCancel).setOnClickListener(v -> dialog.dismiss());
         dialogView.findViewById(R.id.btnCreate).setOnClickListener(v -> {
@@ -201,41 +206,40 @@ public class ProjectsFragment extends Fragment implements ProjectAdapter.OnProje
             admins.add(currentUserId);
 
             Project project = new Project(
-                projectId,
-                name,
-                description,
-                projectType,
-                currentUserId,
-                userName,
-                members,
-                admins,
-                null,
-                selectedDeadline
-            );
+                    projectId,
+                    name,
+                    description,
+                    projectType,
+                    currentUserId,
+                    userName,
+                    members,
+                    admins,
+                    null,
+                    selectedDeadline);
 
             db.collection("projects").document(projectId)
-                .set(project)
-                .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(getContext(), "Project created", Toast.LENGTH_SHORT).show();
-                    dialog.dismiss();
+                    .set(project)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(getContext(), "Project created", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
 
-                    // Switch to the appropriate tab
-                    switch (finalProjectType) {
-                        case "PROJECT":
-                            binding.tabLayout.selectTab(binding.tabLayout.getTabAt(0));
-                            break;
-                        case "CLUB":
-                            binding.tabLayout.selectTab(binding.tabLayout.getTabAt(1));
-                            break;
-                        case "STUDY_GROUP":
-                            binding.tabLayout.selectTab(binding.tabLayout.getTabAt(2));
-                            break;
-                    }
-                    loadProjects();
-                })
-                .addOnFailureListener(e -> {
-                    Toast.makeText(getContext(), "Failed to create project", Toast.LENGTH_SHORT).show();
-                });
+                        // Switch to the appropriate tab
+                        switch (finalProjectType) {
+                            case "PROJECT":
+                                binding.tabLayout.selectTab(binding.tabLayout.getTabAt(0));
+                                break;
+                            case "CLUB":
+                                binding.tabLayout.selectTab(binding.tabLayout.getTabAt(1));
+                                break;
+                            case "STUDY_GROUP":
+                                binding.tabLayout.selectTab(binding.tabLayout.getTabAt(2));
+                                break;
+                        }
+                        loadProjects();
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(getContext(), "Failed to create project", Toast.LENGTH_SHORT).show();
+                    });
         });
 
         dialog.show();
@@ -243,6 +247,24 @@ public class ProjectsFragment extends Fragment implements ProjectAdapter.OnProje
 
     @Override
     public void onProjectClick(Project project) {
+        if ("CLUB".equals(project.getProjectType())
+                && (project.getMembers() == null || !project.getMembers().contains(currentUserId))) {
+            new MaterialAlertDialogBuilder(getContext())
+                    .setTitle("Join " + project.getName())
+                    .setMessage("Do you want to join this club?")
+                    .setPositiveButton("Join", (dialog, which) -> {
+                        db.collection("projects").document(project.getProjectId())
+                                .update("members", FieldValue.arrayUnion(currentUserId))
+                                .addOnSuccessListener(aVoid -> {
+                                    Toast.makeText(getContext(), "Joined Club!", Toast.LENGTH_SHORT).show();
+                                    loadProjects();
+                                });
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
+            return;
+        }
+
         // Show project details dialog
         StringBuilder details = new StringBuilder();
         details.append("Type: ").append(getProjectTypeDisplay(project.getProjectType())).append("\n\n");
@@ -257,25 +279,25 @@ public class ProjectsFragment extends Fragment implements ProjectAdapter.OnProje
         boolean isAdmin = project.getAdmins() != null && project.getAdmins().contains(currentUserId);
 
         MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getContext())
-            .setTitle(project.getName())
-            .setMessage(details.toString())
-            .setPositiveButton("Close", null);
+                .setTitle(project.getName())
+                .setMessage(details.toString())
+                .setPositiveButton("Close", null);
 
         if (isAdmin) {
             builder.setNeutralButton("Delete", (dialog, which) -> {
                 new MaterialAlertDialogBuilder(getContext())
-                    .setTitle("Delete Project")
-                    .setMessage("Are you sure you want to delete this project?")
-                    .setPositiveButton("Delete", (d, w) -> {
-                        db.collection("projects").document(project.getProjectId())
-                            .delete()
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(getContext(), "Project deleted", Toast.LENGTH_SHORT).show();
-                                loadProjects();
-                            });
-                    })
-                    .setNegativeButton("Cancel", null)
-                    .show();
+                        .setTitle("Delete Project")
+                        .setMessage("Are you sure you want to delete this project?")
+                        .setPositiveButton("Delete", (d, w) -> {
+                            db.collection("projects").document(project.getProjectId())
+                                    .delete()
+                                    .addOnSuccessListener(aVoid -> {
+                                        Toast.makeText(getContext(), "Project deleted", Toast.LENGTH_SHORT).show();
+                                        loadProjects();
+                                    });
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
             });
         }
 
@@ -283,11 +305,15 @@ public class ProjectsFragment extends Fragment implements ProjectAdapter.OnProje
     }
 
     private String getProjectTypeDisplay(String type) {
-        if (type == null) return "Project";
+        if (type == null)
+            return "Project";
         switch (type) {
-            case "CLUB": return "Club";
-            case "STUDY_GROUP": return "Study Group";
-            default: return "Project";
+            case "CLUB":
+                return "Club";
+            case "STUDY_GROUP":
+                return "Study Group";
+            default:
+                return "Project";
         }
     }
 

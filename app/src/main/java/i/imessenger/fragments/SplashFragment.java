@@ -35,6 +35,7 @@ public class SplashFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            if (getView() == null) return; // view is destroyed
             NavController navController = Navigation.findNavController(view);
             
             // Remove SplashFragment from back stack so user can't go back to it
@@ -43,7 +44,7 @@ public class SplashFragment extends Fragment {
                     .build();
 
             if (FirebaseAuth.getInstance().getCurrentUser() != null) {
-                navController.navigate(R.id.action_splashFragment_to_homeFragment, null, navOptions);
+                navController.navigate(R.id.action_splashFragment_to_main, null, navOptions);
             } else {
                 navController.navigate(R.id.action_splashFragment_to_loginFragment, null, navOptions);
             }

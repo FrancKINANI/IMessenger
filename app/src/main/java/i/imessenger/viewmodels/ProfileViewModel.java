@@ -13,7 +13,7 @@ public class ProfileViewModel extends ViewModel {
     private final UserRepository userRepository;
 
     public ProfileViewModel() {
-        userRepository = new UserRepository();
+        userRepository = UserRepository.getInstance();
     }
 
     public LiveData<User> getCurrentUser() {

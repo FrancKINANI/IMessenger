@@ -29,7 +29,7 @@ public class SettingsFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         binding = FragmentSettingsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -46,6 +46,22 @@ public class SettingsFragment extends Fragment {
         binding.btnEditProfile.setOnClickListener(v -> {
             NavHostFragment.findNavController(this).navigate(R.id.editProfileFragment);
         });
+
+        // Admin Panel Logic
+        binding.btnAdminPanel.setOnClickListener(v -> {
+            NavHostFragment.findNavController(this).navigate(R.id.adminFragment);
+        });
+
+        // Check if user is admin
+        i.imessenger.repositories.UserRepository.getInstance().getCurrentUser().observe(getViewLifecycleOwner(),
+                user -> {
+                    if (user != null && ("admin".equalsIgnoreCase(user.getRole())
+                            || "super_admin".equalsIgnoreCase(user.getRole()))) {
+                        binding.btnAdminPanel.setVisibility(View.VISIBLE);
+                    } else {
+                        binding.btnAdminPanel.setVisibility(View.GONE);
+                    }
+                });
 
         // Dark Mode - Load from SharedPreferences
         SharedPreferences prefs = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
@@ -69,7 +85,8 @@ public class SettingsFragment extends Fragment {
             Intent intent = new Intent(getActivity(), MainActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            if (getActivity() != null) getActivity().finish();
+            if (getActivity() != null)
+                getActivity().finish();
         });
     }
 

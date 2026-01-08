@@ -12,7 +12,7 @@ public class LoginViewModel extends ViewModel {
     private final AuthRepository authRepository;
 
     public LoginViewModel() {
-        authRepository = new AuthRepository();
+        authRepository = AuthRepository.getInstance();
     }
 
     public LiveData<Boolean> login(String email, String password) {

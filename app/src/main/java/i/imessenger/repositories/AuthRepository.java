@@ -14,12 +14,24 @@ import i.imessenger.models.User;
 
 public class AuthRepository {
 
+    private static volatile AuthRepository instance;
     private final FirebaseAuth mAuth;
     private final FirebaseFirestore db;
 
-    public AuthRepository() {
+    private AuthRepository() {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
+    }
+
+    public static AuthRepository getInstance() {
+        if (instance == null) {
+            synchronized (AuthRepository.class) {
+                if (instance == null) {
+                    instance = new AuthRepository();
+                }
+            }
+        }
+        return instance;
     }
 
     public LiveData<FirebaseUser> getCurrentUser() {
@@ -50,7 +62,7 @@ public class AuthRepository {
                                 level,
                                 "", // Profile Image
                                 "", // FCM Token
-                                ""  // Groups
+                                "" // Groups
                         );
                         db.collection("users").document(firebaseUser.getUid())
                                 .set(user)
@@ -70,7 +82,8 @@ public class AuthRepository {
 
     public LiveData<Boolean> loginWithGoogle(String idToken) {
         MutableLiveData<Boolean> result = new MutableLiveData<>();
-        com.google.firebase.auth.AuthCredential credential = com.google.firebase.auth.GoogleAuthProvider.getCredential(idToken, null);
+        com.google.firebase.auth.AuthCredential credential = com.google.firebase.auth.GoogleAuthProvider
+                .getCredential(idToken, null);
         mAuth.signInWithCredential(credential)
                 .addOnSuccessListener(authResult -> {
                     FirebaseUser firebaseUser = authResult.getUser();
@@ -105,8 +118,7 @@ public class AuthRepository {
                 "1st Year",
                 firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "",
                 "",
-                ""
-        );
+                "");
 
         db.collection("users").document(firebaseUser.getUid())
                 .set(user)

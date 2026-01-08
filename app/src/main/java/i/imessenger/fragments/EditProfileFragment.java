@@ -30,7 +30,7 @@ public class EditProfileFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         binding = FragmentEditProfileBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -72,7 +72,14 @@ public class EditProfileFragment extends Fragment {
             binding.etRole.setText(user.getRole());
             binding.etLevel.setText(user.getLevel());
             binding.etGroups.setText(user.getGroups());
-            
+
+            // Mini-CV
+            if (user.getSkills() != null) {
+                binding.etSkills.setText(android.text.TextUtils.join(", ", user.getSkills()));
+            }
+            binding.etLinkedin.setText(user.getLinkedin());
+            binding.etPortfolio.setText(user.getPortfolio());
+
             if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
                 Glide.with(this)
                         .load(user.getProfileImage())
@@ -83,12 +90,17 @@ public class EditProfileFragment extends Fragment {
     }
 
     private void saveUserProfile() {
-        if (currentUserModel == null) return;
+        if (currentUserModel == null)
+            return;
 
         String newName = binding.etFullName.getText().toString().trim();
         String newRole = binding.etRole.getText().toString().trim();
         String newLevel = binding.etLevel.getText().toString().trim();
         String newGroups = binding.etGroups.getText().toString().trim();
+
+        String skillsStr = binding.etSkills.getText().toString().trim();
+        String linkedin = binding.etLinkedin.getText().toString().trim();
+        String portfolio = binding.etPortfolio.getText().toString().trim();
 
         binding.progressBar.setVisibility(View.VISIBLE);
         Map<String, Object> updates = new HashMap<>();
@@ -97,15 +109,28 @@ public class EditProfileFragment extends Fragment {
         updates.put("level", newLevel);
         updates.put("groups", newGroups);
 
-        profileViewModel.updateUserProfile(currentUserModel.getUid(), updates).observe(getViewLifecycleOwner(), success -> {
-            binding.progressBar.setVisibility(View.GONE);
-            if (success) {
-                Toast.makeText(getContext(), "Profile Updated", Toast.LENGTH_SHORT).show();
-                NavHostFragment.findNavController(this).navigateUp();
-            } else {
-                Toast.makeText(getContext(), "Failed to update profile", Toast.LENGTH_SHORT).show();
+        java.util.List<String> skillsList = new java.util.ArrayList<>();
+        if (!skillsStr.isEmpty()) {
+            for (String s : skillsStr.split(",")) {
+                if (!s.trim().isEmpty()) {
+                    skillsList.add(s.trim());
+                }
             }
-        });
+        }
+        updates.put("skills", skillsList);
+        updates.put("linkedin", linkedin);
+        updates.put("portfolio", portfolio);
+
+        profileViewModel.updateUserProfile(currentUserModel.getUid(), updates).observe(getViewLifecycleOwner(),
+                success -> {
+                    binding.progressBar.setVisibility(View.GONE);
+                    if (success) {
+                        Toast.makeText(getContext(), "Profile Updated", Toast.LENGTH_SHORT).show();
+                        NavHostFragment.findNavController(this).navigateUp();
+                    } else {
+                        Toast.makeText(getContext(), "Failed to update profile", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     @Override

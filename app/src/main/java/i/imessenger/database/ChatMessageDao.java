@@ -10,7 +10,7 @@ import java.util.List;
 
 @Dao
 public interface ChatMessageDao {
-    
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertMessage(ChatMessageEntity message);
 
@@ -20,6 +20,12 @@ public interface ChatMessageDao {
     @Query("SELECT * FROM chat_messages WHERE groupId = :groupId ORDER BY dateObject ASC")
     LiveData<List<ChatMessageEntity>> getGroupMessages(String groupId);
 
-    @Query("SELECT * FROM chat_messages WHERE (senderId = :senderId AND receiverId = :receiverId) OR (senderId = :receiverId AND receiverId = :senderId) ORDER BY dateObject ASC")
-    LiveData<List<ChatMessageEntity>> getPrivateMessages(String senderId, String receiverId);
+    @Query("SELECT * FROM chat_messages WHERE conversionId = :conversionId ORDER BY dateObject ASC")
+    LiveData<List<ChatMessageEntity>> getPrivateMessages(String conversionId);
+
+    @Query("DELETE FROM chat_messages WHERE groupId = :groupId AND id NOT IN (SELECT id FROM chat_messages WHERE groupId = :groupId ORDER BY dateObject DESC LIMIT 20)")
+    void deleteOldGroupMessages(String groupId);
+
+    @Query("DELETE FROM chat_messages WHERE conversionId = :conversionId AND id NOT IN (SELECT id FROM chat_messages WHERE conversionId = :conversionId ORDER BY dateObject DESC LIMIT 20)")
+    void deleteOldPrivateMessages(String conversionId);
 }

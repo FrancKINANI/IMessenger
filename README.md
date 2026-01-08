@@ -26,11 +26,12 @@ The application follows the **MVVM (Model-View-ViewModel)** architectural patter
 -   **Model**: Represents the data and business logic (e.g., `User`, `ChatMessage`, `Group`).
 -   **View**: UI components (Fragments) that observe the ViewModel and update the UI.
 -   **ViewModel**: Acts as a bridge between the View and the Repository, holding UI-related data and handling logic.
--   **Repository**: Manages data operations, abstracting the data sources (Firebase Firestore, Auth).
+-   **Repository**: Manages data operations, abstracting the data sources (Firebase Firestore, Auth). Implemented as **Singletons** to ensure a single source of truth and efficient resource management.
+-   **AppExecutors**: A centralized thread pool manager to handle background operations (disk, network) efficiently, preventing thread explosion and UI jank.
 
 ### Key Components
 
--   **Repositories**: `AuthRepository`, `ChatRepository`, `UserRepository`.
+-   **Repositories**: `AuthRepository`, `ChatRepository`, `UserRepository` (Singleton Pattern).
 -   **ViewModels**: `LoginViewModel`, `RegisterViewModel`, `ChatListViewModel`, `ChatViewModel`, `ProfileViewModel`.
 -   **Fragments**: `LoginFragment`, `ChatListFragment`, `ChatFragment`, `ProfileFragment`, `SettingsFragment`, etc.
 -   **Navigation**: `nav_graph.xml` defines the application flow and transitions.
@@ -58,3 +59,16 @@ The application follows the **MVVM (Model-View-ViewModel)** architectural patter
 ## Roadmap
 
 See [roadmap.md](app/Details/roadmap.md) for future plans.
+
+## Security & Maintenance
+
+### Security Enhancements
+-   **End-to-End Encryption**: Implemented **AES-256 GCM** (Galois/Counter Mode) with NoPadding for secure message encryption.
+    -   Messages are encrypted before being sent to Firestore.
+    -   Prevents plain-text data leakage in the database.
+    -   Includes integrity checks (Auth Tag) and random IVs for each message.
+-   **Safety Checks**: The application now strictly prevents sending messages if encryption fails, ensuring no plain-text messages are ever stored.
+
+### Code Maintenance
+-   **Cleanup**: Removed unused test boilerplate (`ExampleUnitTest`, `ExampleInstrumentedTest`) to keep the codebase clean.
+-   **Optimization**: Improved `ChatRepository` listener management to prevent memory leaks and duplicate message handling.

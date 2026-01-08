@@ -12,12 +12,22 @@ import i.imessenger.models.User;
 
 public class UserRepository {
 
+    private static volatile UserRepository instance;
     private final FirebaseFirestore db;
-    private final String currentUserId;
 
-    public UserRepository() {
+    private UserRepository() {
         db = FirebaseFirestore.getInstance();
-        currentUserId = FirebaseAuth.getInstance().getUid();
+    }
+
+    public static UserRepository getInstance() {
+        if (instance == null) {
+            synchronized (UserRepository.class) {
+                if (instance == null) {
+                    instance = new UserRepository();
+                }
+            }
+        }
+        return instance;
     }
 
     public LiveData<User> getUser(String userId) {
@@ -35,7 +45,9 @@ public class UserRepository {
     }
 
     public LiveData<User> getCurrentUser() {
-        if (currentUserId == null) return new MutableLiveData<>(null);
+        String currentUserId = FirebaseAuth.getInstance().getUid();
+        if (currentUserId == null)
+            return new MutableLiveData<>(null);
         return getUser(currentUserId);
     }
 
@@ -58,8 +70,7 @@ public class UserRepository {
                 "1st Year", // Default
                 firebaseUser.getPhotoUrl() != null ? firebaseUser.getPhotoUrl().toString() : "",
                 "",
-                ""
-        );
+                "");
 
         db.collection("users").document(firebaseUser.getUid())
                 .set(user)

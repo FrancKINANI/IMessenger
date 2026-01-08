@@ -38,7 +38,7 @@ public class FeedFragment extends Fragment implements FeedPostAdapter.OnPostInte
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         binding = FragmentFeedBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -158,6 +158,25 @@ public class FeedFragment extends Fragment implements FeedPostAdapter.OnPostInte
                 Toast.makeText(requireContext(), R.string.error_occurred, Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    @Override
+    public void onReportClicked(FeedPost post) {
+        String[] reasons = { "Spam", "Inappropriate Content", "Harassment", "Other" };
+        new com.google.android.material.dialog.MaterialAlertDialogBuilder(requireContext())
+                .setTitle("Report Post")
+                .setItems(reasons, (dialog, which) -> {
+                    String reason = reasons[which];
+                    feedViewModel.reportPost(post.getPostId(), reason).observe(getViewLifecycleOwner(), success -> {
+                        if (success) {
+                            Toast.makeText(requireContext(), "Report sent. Thank you.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(requireContext(), "Failed to report post.", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     @Override

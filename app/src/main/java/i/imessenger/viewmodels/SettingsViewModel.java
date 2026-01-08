@@ -9,7 +9,7 @@ public class SettingsViewModel extends ViewModel {
     private final AuthRepository authRepository;
 
     public SettingsViewModel() {
-        authRepository = new AuthRepository();
+        authRepository = AuthRepository.getInstance();
     }
 
     public void logout() {

@@ -1,81 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/background_gray">
+    xmlns:app="http://schemas.android.com/apk/res-auto" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/background_gray">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@drawable/gradient_background"
-        app:layout_constraintTop_toTopOf="parent"
-        app:navigationIcon="@drawable/ic_back"
-        app:title="@string/settings"
-        app:titleTextColor="@color/white" />
+    <androidx.appcompat.widget.Toolbar android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" android:background="@drawable/gradient_background" app:layout_constraintTop_toTopOf="parent" app:navigationIcon="@drawable/ic_back" app:title="@string/settings" app:titleTextColor="@color/white" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        app:layout_constraintTop_toBottomOf="@id/toolbar">
+    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" app:layout_constraintTop_toBottomOf="@id/toolbar">
 
-        <TextView
-            android:id="@+id/btnEditProfile"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/surface_color"
-            android:padding="16dp"
-            android:text="Edit Profile"
-            android:textColor="@color/text_primary"
-            android:textSize="16sp"
-            android:drawableEnd="@drawable/ic_chevron_right" />
+        <TextView android:id="@+id/btnEditProfile" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface_color" android:padding="16dp" android:text="Edit Profile" android:textColor="@color/text_primary" android:textSize="16sp" android:drawableEnd="@drawable/ic_chevron_right" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider" />
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/surface_color"
-            android:orientation="horizontal"
-            android:padding="16dp">
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface_color" android:orientation="horizontal" android:padding="16dp">
 
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Dark Mode"
-                android:textColor="@color/text_primary"
-                android:textSize="16sp" />
+            <TextView android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Dark Mode" android:textColor="@color/text_primary" android:textSize="16sp" />
 
-            <androidx.appcompat.widget.SwitchCompat
-                android:id="@+id/switchDarkMode"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+            <androidx.appcompat.widget.SwitchCompat android:id="@+id/switchDarkMode" android:layout_width="wrap_content" android:layout_height="wrap_content" />
         </LinearLayout>
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="1dp"
-            android:background="@color/divider" />
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
 
-        <TextView
-            android:id="@+id/btnLogout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:background="@color/surface_color"
-            android:padding="16dp"
-            android:text="Log Out"
-            android:textColor="@color/colorLogout"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:gravity="center" />
+        <TextView android:id="@+id/btnAdminPanel" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/surface_color" android:padding="16dp" android:text="Admin Panel" android:textColor="@color/text_primary" android:textSize="16sp" android:drawableEnd="@drawable/ic_chevron_right" android:visibility="gone"/>
+
+        <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/divider" />
+
+        <TextView android:id="@+id/btnLogout" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="32dp" android:background="@color/surface_color" android:padding="16dp" android:text="Log Out" android:textColor="@color/colorLogout" android:textSize="16sp" android:textStyle="bold" android:gravity="center" />
 
     </LinearLayout>
 

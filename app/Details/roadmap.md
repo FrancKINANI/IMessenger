@@ -35,7 +35,7 @@ To meet the 3-month deadline and ensure code maintainability, we use a **Serverl
 - Firestore architecture & Repositories
 - Authentication management
 - Real-time chat logic (1-1 messaging, groups)
-- Security
+- [x] Security
 
 ### Dev B (Lead UI/UX & Social)
 - Interface design (XML) & ViewModels
@@ -47,8 +47,6 @@ To meet the 3-month deadline and ensure code maintainability, we use a **Serverl
 - Calendar
 - Document drive
 - Polls, Manage calls for project
-- Geolocation
-- Video API integration (Zoom/Meet)
 
 ---
 
@@ -78,7 +76,7 @@ To meet the 3-month deadline and ensure code maintainability, we use a **Serverl
 
 #### Week 4: Basic Groups
 - [x] Group creation (Admin managed)
-- [ ] Sending images in chat
+- [x] Sending images in chat
 - [x] Public & Event Channels
 
 ---
@@ -88,24 +86,24 @@ To meet the 3-month deadline and ensure code maintainability, we use a **Serverl
 **Objective**: Make the app useful for studies and social life.
 
 #### Week 5: News Feed
-- [ ] Post news (Admin/Student Council)
-- [ ] Likes/Comments system
-- [ ] Event display
+- [x] Post news (Admin/Student Council)
+- [x] Likes/Comments system
+- [x] Event display
 
 #### Week 6: Document Sharing (Drive)
-- [ ] Upload interface for PDF/PPT
-- [ ] Organization by folders (Year > Subject)
-- [ ] File downloading
+- [x] Upload interface for PDF/PPT
+- [x] Organization by folders (Year > Subject)
+- [x] File downloading
 
 #### Week 7: Calendar & Notifications
-- [ ] Calendar view for classes/exams
-- [ ] Push Notifications implementation (New message, New grade)
+- [x] Calendar view for classes/exams
+- [x] Push Notifications implementation (New message, New grade)
 
 #### Week 8: Advanced Profiles & Skills
 - [x] Edit Profile (Settings)
 - [x] View other user profiles
-- [ ] Add "Mini-CV" to profile
-- [ ] "Clubs" section (Join a club)
+- [x] Add "Mini-CV" to profile
+- [x] "Clubs" section (Join a club)
 
 ---
 
@@ -114,21 +112,19 @@ To meet the 3-month deadline and ensure code maintainability, we use a **Serverl
 **Objective**: Add "Wow" features and stabilize the app.
 
 #### Week 9: Advanced Tools
-- [ ] Polls / Voting
-- [ ] Video link integration ("Start a Meet" button opening Google Meet app with a pre-generated code)
+- [x] Polls / Voting
 
 #### Week 10: Alumni & Geolocation
 - [x] "Alumni" space (specific filter)
-- [ ] Campus map (Google Maps API with custom markers for rooms)
 
 #### Week 11: Admin & Moderation
-- [ ] Admin panel (in-app or web) to report/block
-- [ ] Analytics (view counters, message stats)
+- [x] Admin panel (in-app or web) to report/block
+- [x] Analytics (view counters, message stats)
 
 #### Week 12: Testing & Deployment
-- [ ] Bug fixing (Crashlytics)
-- [ ] Performance optimization
-- [ ] Final presentation
+- [x] Bug fixing (Crashlytics)
+- [x] Performance optimization
+- [x] Final presentation
 
 ---
 

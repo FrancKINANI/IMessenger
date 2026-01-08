@@ -56,8 +56,7 @@ public class ProfileFragment extends Fragment {
                     binding.ivProfileImage.setImageURI(uri);
                     uploadProfileImage(uri);
                 }
-            }
-    );
+            });
 
     public ProfileFragment() {
         // Required empty public constructor
@@ -65,7 +64,7 @@ public class ProfileFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         binding = FragmentProfileBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -185,7 +184,8 @@ public class ProfileFragment extends Fragment {
         binding.tvRole.setText(user.getRole());
         binding.tvLevel.setText(user.getLevel());
         binding.tvGroups.setText(user.getGroups() != null && !user.getGroups().isEmpty()
-                ? user.getGroups() : "-");
+                ? user.getGroups()
+                : "-");
 
         // Calculate and set groups count - handle null/empty cases
         int groupsCount = 0;
@@ -206,6 +206,28 @@ public class ProfileFragment extends Fragment {
             binding.tvBio.setText(user.getBio());
         } else {
             binding.tvBio.setText(user.getRole() + " • " + user.getLevel());
+        }
+
+        // Mini-CV
+        if (user.getSkills() != null && !user.getSkills().isEmpty()) {
+            binding.tvSkills.setText(android.text.TextUtils.join(", ", user.getSkills()));
+            ((View) binding.tvSkills.getParent().getParent()).setVisibility(View.VISIBLE);
+        } else {
+            ((View) binding.tvSkills.getParent().getParent()).setVisibility(View.GONE);
+        }
+
+        if (user.getLinkedin() != null && !user.getLinkedin().isEmpty()) {
+            binding.tvLinkedin.setText(user.getLinkedin());
+            ((View) binding.tvLinkedin.getParent().getParent()).setVisibility(View.VISIBLE);
+        } else {
+            ((View) binding.tvLinkedin.getParent().getParent()).setVisibility(View.GONE);
+        }
+
+        if (user.getPortfolio() != null && !user.getPortfolio().isEmpty()) {
+            binding.tvPortfolio.setText(user.getPortfolio());
+            ((View) binding.tvPortfolio.getParent().getParent()).setVisibility(View.VISIBLE);
+        } else {
+            ((View) binding.tvPortfolio.getParent().getParent()).setVisibility(View.GONE);
         }
 
         if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {

@@ -19,8 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
 import java.util.concurrent.atomic.AtomicInteger;
 
 import i.imessenger.database.AppDatabase;
@@ -36,25 +35,39 @@ public class ChatRepository {
     private final FirebaseStorage storage;
     private final String currentUserId;
     private final AppDatabase database;
-    private final ExecutorService executorService;
+    private static volatile ChatRepository instance;
+    private final java.util.concurrent.Executor executor;
     private com.google.firebase.firestore.ListenerRegistration chatListener;
 
     public interface MediaUploadCallback {
         void onSuccess();
+
         void onError(String error);
     }
 
-    public ChatRepository(Context context) {
+    private ChatRepository(Context context) {
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
         currentUserId = FirebaseAuth.getInstance().getUid();
         database = AppDatabase.getInstance(context);
-        executorService = Executors.newSingleThreadExecutor();
+        executor = i.imessenger.utils.AppExecutors.getInstance().diskIO();
+    }
+
+    public static ChatRepository getInstance(Context context) {
+        if (instance == null) {
+            synchronized (ChatRepository.class) {
+                if (instance == null) {
+                    instance = new ChatRepository(context);
+                }
+            }
+        }
+        return instance;
     }
 
     public LiveData<List<User>> getUsers() {
         MutableLiveData<List<User>> usersLiveData = new MutableLiveData<>();
-        if (currentUserId == null) return usersLiveData;
+        if (currentUserId == null)
+            return usersLiveData;
 
         db.collection("users").get()
                 .addOnSuccessListener(queryDocumentSnapshots -> {
@@ -73,7 +86,8 @@ public class ChatRepository {
 
     public LiveData<User> getCurrentUser() {
         MutableLiveData<User> userLiveData = new MutableLiveData<>();
-        if (currentUserId == null) return userLiveData;
+        if (currentUserId == null)
+            return userLiveData;
 
         db.collection("users").document(currentUserId).get()
                 .addOnSuccessListener(documentSnapshot -> {
@@ -89,7 +103,8 @@ public class ChatRepository {
 
     public LiveData<List<Group>> getMyGroups() {
         MutableLiveData<List<Group>> groupsLiveData = new MutableLiveData<>();
-        if (currentUserId == null) return groupsLiveData;
+        if (currentUserId == null)
+            return groupsLiveData;
 
         db.collection("groups")
                 .whereArrayContains("members", currentUserId)
@@ -113,7 +128,8 @@ public class ChatRepository {
 
     public LiveData<List<Group>> getGroups(String type) {
         MutableLiveData<List<Group>> groupsLiveData = new MutableLiveData<>();
-        if (currentUserId == null) return groupsLiveData;
+        if (currentUserId == null)
+            return groupsLiveData;
 
         db.collection("groups")
                 .whereEqualTo("groupType", type)
@@ -145,7 +161,7 @@ public class ChatRepository {
                 .addOnFailureListener(e -> groupsLiveData.setValue(null));
         return groupsLiveData;
     }
-    
+
     public LiveData<List<Group>> getEventGroups() {
         MutableLiveData<List<Group>> groupsLiveData = new MutableLiveData<>();
         db.collection("groups")
@@ -162,7 +178,8 @@ public class ChatRepository {
         return groupsLiveData;
     }
 
-    public void ensureGroupExists(String groupId, String groupName, String groupType, List<String> members, List<String> admins) {
+    public void ensureGroupExists(String groupId, String groupName, String groupType, List<String> members,
+            List<String> admins) {
         db.collection("groups").document(groupId).get()
                 .addOnSuccessListener(documentSnapshot -> {
                     if (!documentSnapshot.exists()) {
@@ -170,27 +187,36 @@ public class ChatRepository {
                         db.collection("groups").document(groupId).set(group);
                     } else {
                         Group group = documentSnapshot.toObject(Group.class);
-                        if (group != null && group.getMembers() != null && !group.getMembers().contains(currentUserId)) {
+                        if (group != null && group.getMembers() != null
+                                && !group.getMembers().contains(currentUserId)) {
                             db.collection("groups").document(groupId)
-                                    .update("members", com.google.firebase.firestore.FieldValue.arrayUnion(currentUserId));
+                                    .update("members",
+                                            com.google.firebase.firestore.FieldValue.arrayUnion(currentUserId));
                         }
                     }
                 });
     }
 
     public void sendMessage(ChatMessage message) {
+        // Ensure conversationId is set for 1-to-1 chats
+        if (message.groupId == null && (message.conversionId == null || message.conversionId.isEmpty())) {
+            if (message.receiverId != null) {
+                message.conversionId = getConversationId(message.senderId, message.receiverId);
+            }
+        }
+
         // Encrypt message before sending
         try {
             String encryptedText = EncryptionUtils.encrypt(message.message);
             message.message = encryptedText;
+            db.collection("chat").add(message);
         } catch (Exception e) {
             e.printStackTrace();
-            // Handle error - maybe don't send? For now we send as plain text/fail safely or just log
-            // Ideally we should notify user.
+            android.util.Log.e("ChatRepository", "Encryption failed, message not sent: " + e.getMessage());
+            // Do not send the message if encryption fails to prevent plain text leakage
         }
-        db.collection("chat").add(message);
     }
-    
+
     public void sendMediaMessage(ChatMessage message, List<Uri> mediaUris, MediaUploadCallback callback) {
         if (mediaUris == null || mediaUris.isEmpty()) {
             sendMessage(message);
@@ -210,7 +236,8 @@ public class ChatRepository {
         for (int i = 0; i < mediaUris.size(); i++) {
             Uri uri = mediaUris.get(i);
             String mediaType = (message.mediaTypes != null && i < message.mediaTypes.size())
-                    ? message.mediaTypes.get(i) : "image";
+                    ? message.mediaTypes.get(i)
+                    : "image";
             String extension = "video".equals(mediaType) ? ".mp4" : ".jpg";
             String fileName = "chat_media/" + currentUserId + "/" + UUID.randomUUID().toString() + extension;
 
@@ -218,32 +245,32 @@ public class ChatRepository {
 
             final int index = i;
             ref.putFile(uri)
-                .addOnSuccessListener(taskSnapshot -> {
-                    ref.getDownloadUrl().addOnSuccessListener(downloadUri -> {
-                        synchronized (uploadedUrls) {
-                            // Maintain order
-                            while (uploadedUrls.size() <= index) {
-                                uploadedUrls.add(null);
-                            }
-                            uploadedUrls.set(index, downloadUri.toString());
-                        }
-
-                        if (uploadCount.incrementAndGet() == totalUploads) {
-                            // All uploads complete
-                            message.mediaUrls = new ArrayList<>();
-                            for (String url : uploadedUrls) {
-                                if (url != null) {
-                                    message.mediaUrls.add(url);
+                    .addOnSuccessListener(taskSnapshot -> {
+                        ref.getDownloadUrl().addOnSuccessListener(downloadUri -> {
+                            synchronized (uploadedUrls) {
+                                // Maintain order
+                                while (uploadedUrls.size() <= index) {
+                                    uploadedUrls.add(null);
                                 }
+                                uploadedUrls.set(index, downloadUri.toString());
                             }
-                            sendMessage(message);
-                            callback.onSuccess();
-                        }
+
+                            if (uploadCount.incrementAndGet() == totalUploads) {
+                                // All uploads complete
+                                message.mediaUrls = new ArrayList<>();
+                                for (String url : uploadedUrls) {
+                                    if (url != null) {
+                                        message.mediaUrls.add(url);
+                                    }
+                                }
+                                sendMessage(message);
+                                callback.onSuccess();
+                            }
+                        });
+                    })
+                    .addOnFailureListener(e -> {
+                        callback.onError(e.getMessage());
                     });
-                })
-                .addOnFailureListener(e -> {
-                    callback.onError(e.getMessage());
-                });
         }
     }
 
@@ -252,9 +279,10 @@ public class ChatRepository {
         if (groupId != null) {
             source = database.chatMessageDao().getGroupMessages(groupId);
         } else {
-            source = database.chatMessageDao().getPrivateMessages(currentUserId, receiverId);
+            String conversionId = getConversationId(currentUserId, receiverId);
+            source = database.chatMessageDao().getPrivateMessages(conversionId);
         }
-        
+
         return Transformations.map(source, input -> {
             List<ChatMessage> messages = new ArrayList<>();
             for (ChatMessageEntity entity : input) {
@@ -275,62 +303,35 @@ public class ChatRepository {
                     .whereEqualTo("groupId", groupId)
                     .addSnapshotListener(this::handleSnapshot);
         } else if (receiverId != null && currentUserId != null) {
-             // For 1-to-1 chat, logic is tricky with single query.
-             // We can only listen to one query effectively or we need composite query.
-             // But usually we need two listeners (sent by me AND sent by them).
-             // To simplify and avoid duplicates from multiple listeners, 
-             // we should use a composite ID or handle it carefully.
-             // However, for now, let's just listen to messages involving both users.
-             // Ideally: where(users array-contains currentUID)
-             
-             // The previous code had TWO listeners. This is bad for 'chatListener' variable.
-             // Let's optimize: Chat messages usually have a 'conversationId' or we sort client side?
-             // Or we just listen to two queries?
-             
-             // If we use TWO listeners, we need a list of registrations.
-             // Let's switch to using 'or' query if possible or manage list.
-             // Firestore 'in' query supports up to 10.
-             
-             // Actually, if we use a unique conversation ID for 1-1 chat, we only need one listener.
-             // If not, we have to stick with what we have but manage it better.
-             
-             // Simplest fix for now: Create a unique conversation ID logic if possible, 
-             // BUT simply managing the listener variable assumes one listener.
-             // Let's stick to the previous implementation logic but clear previous listeners.
-             
-             // Since the original code added TWO listeners for 1-1 chat, 
-             // assigning to 'chatListener' would overwrite the first one.
-             // We need a LIST of listeners.
-             
-             registerPrivateChatListeners(receiverId);
+            registerPrivateChatListeners(receiverId);
         }
     }
 
     private List<com.google.firebase.firestore.ListenerRegistration> listenerRegistrations = new ArrayList<>();
 
     private void registerPrivateChatListeners(String receiverId) {
-        // Clear previous
         removeListeners();
-        
-        // Listen sent by me
+        String conversationId = getConversationId(currentUserId, receiverId);
+
         listenerRegistrations.add(db.collection("chat")
-            .whereEqualTo("senderId", currentUserId)
-            .whereEqualTo("receiverId", receiverId)
-            .addSnapshotListener(this::handleSnapshot));
-            
-        // Listen sent by them
-        listenerRegistrations.add(db.collection("chat")
-            .whereEqualTo("senderId", receiverId)
-            .whereEqualTo("receiverId", currentUserId)
-            .addSnapshotListener(this::handleSnapshot));
+                .whereEqualTo("conversionId", conversationId)
+                .addSnapshotListener(this::handleSnapshot));
     }
-    
+
+    private String getConversationId(String userId1, String userId2) {
+        if (userId1.compareTo(userId2) < 0) {
+            return userId1 + "_" + userId2;
+        } else {
+            return userId2 + "_" + userId1;
+        }
+    }
+
     // Update syncMessages to use removeListeners logic
-    
+
     public void cleanup() {
         removeListeners();
     }
-    
+
     private void removeListeners() {
         if (chatListener != null) {
             chatListener.remove();
@@ -341,9 +342,11 @@ public class ChatRepository {
         }
         listenerRegistrations.clear();
     }
-    
-    private void handleSnapshot(com.google.firebase.firestore.QuerySnapshot value, com.google.firebase.firestore.FirebaseFirestoreException error) {
-        if (error != null) return;
+
+    private void handleSnapshot(com.google.firebase.firestore.QuerySnapshot value,
+            com.google.firebase.firestore.FirebaseFirestoreException error) {
+        if (error != null)
+            return;
         if (value != null) {
             List<ChatMessageEntity> newMessages = new ArrayList<>();
             for (DocumentChange documentChange : value.getDocumentChanges()) {
@@ -361,7 +364,16 @@ public class ChatRepository {
                 }
             }
             if (!newMessages.isEmpty()) {
-                executorService.execute(() -> database.chatMessageDao().insertMessages(newMessages));
+                executor.execute(() -> {
+                    database.chatMessageDao().insertMessages(newMessages);
+                    // Optimize local storage: Keep only last 20 messages
+                    ChatMessageEntity first = newMessages.get(0);
+                    if (first.groupId != null) {
+                        database.chatMessageDao().deleteOldGroupMessages(first.groupId);
+                    } else if (first.conversionId != null) {
+                        database.chatMessageDao().deleteOldPrivateMessages(first.conversionId);
+                    }
+                });
             }
         }
     }
@@ -369,9 +381,9 @@ public class ChatRepository {
     public LiveData<Group> getGroupInfo(String groupId) {
         MutableLiveData<Group> groupLiveData = new MutableLiveData<>();
         db.collection("groups").document(groupId).addSnapshotListener((value, error) -> {
-             if (value != null && value.exists()) {
-                 groupLiveData.setValue(value.toObject(Group.class));
-             }
+            if (value != null && value.exists()) {
+                groupLiveData.setValue(value.toObject(Group.class));
+            }
         });
         return groupLiveData;
     }

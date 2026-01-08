@@ -1,5 +1,8 @@
 package i.imessenger.models;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class User {
     private String uid;
     private String email;
@@ -11,11 +14,18 @@ public class User {
     private String groups;
     private String bio;
 
+    // Mini-CV
+    private List<String> skills;
+    private String linkedin;
+    private String portfolio;
+
     public User() {
         // Required for Firestore
+        this.skills = new ArrayList<>();
     }
 
-    public User(String uid, String email, String fullName, String role, String level, String profileImage, String fcmToken, String groups) {
+    public User(String uid, String email, String fullName, String role, String level, String profileImage,
+            String fcmToken, String groups) {
         this.uid = uid;
         this.email = email;
         this.fullName = fullName;
@@ -25,6 +35,9 @@ public class User {
         this.fcmToken = fcmToken;
         this.groups = groups;
         this.bio = "";
+        this.skills = new ArrayList<>();
+        this.linkedin = "";
+        this.portfolio = "";
     }
 
     public String getUid() {
@@ -97,5 +110,29 @@ public class User {
 
     public void setBio(String bio) {
         this.bio = bio;
+    }
+
+    public List<String> getSkills() {
+        return skills;
+    }
+
+    public void setSkills(List<String> skills) {
+        this.skills = skills;
+    }
+
+    public String getLinkedin() {
+        return linkedin;
+    }
+
+    public void setLinkedin(String linkedin) {
+        this.linkedin = linkedin;
+    }
+
+    public String getPortfolio() {
+        return portfolio;
+    }
+
+    public void setPortfolio(String portfolio) {
+        this.portfolio = portfolio;
     }
 }

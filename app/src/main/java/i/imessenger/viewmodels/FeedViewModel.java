@@ -22,8 +22,8 @@ public class FeedViewModel extends ViewModel {
     private MutableLiveData<Boolean> isRefreshing = new MutableLiveData<>(false);
 
     public FeedViewModel() {
-        feedRepository = new FeedRepository();
-        userRepository = new UserRepository();
+        feedRepository = FeedRepository.getInstance();
+        userRepository = UserRepository.getInstance();
         loadCurrentUser();
     }
 
@@ -46,7 +46,7 @@ public class FeedViewModel extends ViewModel {
     }
 
     public LiveData<Boolean> createPost(String content, List<Uri> mediaUris, List<String> mediaTypes,
-                                         List<String> mediaNames, String visibility, String targetClass) {
+            List<String> mediaNames, String visibility, String targetClass) {
         User user = currentUser.getValue();
         if (user == null) {
             MutableLiveData<Boolean> result = new MutableLiveData<>();
@@ -81,9 +81,17 @@ public class FeedViewModel extends ViewModel {
         return feedRepository.deletePost(postId);
     }
 
+    public LiveData<Boolean> reportPost(String postId, String reason) {
+        return feedRepository.reportPost(postId, reason);
+    }
+
+    public void incrementViewCount(String postId) {
+        feedRepository.incrementViewCount(postId);
+    }
+
     public boolean isCurrentUser(String userId) {
         return feedRepository.getCurrentUserId() != null &&
-               feedRepository.getCurrentUserId().equals(userId);
+                feedRepository.getCurrentUserId().equals(userId);
     }
 
     public String getCurrentUserId() {
@@ -98,4 +106,3 @@ public class FeedViewModel extends ViewModel {
         isRefreshing.setValue(refreshing);
     }
 }
-

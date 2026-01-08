@@ -28,7 +28,7 @@ public class UserProfileFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         binding = FragmentUserProfileBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -40,7 +40,7 @@ public class UserProfileFragment extends Fragment {
         if (getArguments() != null) {
             userId = getArguments().getString("userId");
         }
-        
+
         if (userId == null) {
             NavHostFragment.findNavController(this).navigateUp();
             return;
@@ -84,7 +84,28 @@ public class UserProfileFragment extends Fragment {
             binding.tvRole.setText(user.getRole());
             binding.tvLevel.setText(user.getLevel());
             binding.tvGroups.setText(user.getGroups());
-            
+
+            if (user.getSkills() != null && !user.getSkills().isEmpty()) {
+                binding.tvSkills.setText(android.text.TextUtils.join(", ", user.getSkills()));
+                ((View) binding.tvSkills.getParent()).setVisibility(View.VISIBLE);
+            } else {
+                ((View) binding.tvSkills.getParent()).setVisibility(View.GONE);
+            }
+
+            if (user.getLinkedin() != null && !user.getLinkedin().isEmpty()) {
+                binding.tvLinkedin.setText(user.getLinkedin());
+                ((View) binding.tvLinkedin.getParent()).setVisibility(View.VISIBLE);
+            } else {
+                ((View) binding.tvLinkedin.getParent()).setVisibility(View.GONE);
+            }
+
+            if (user.getPortfolio() != null && !user.getPortfolio().isEmpty()) {
+                binding.tvPortfolio.setText(user.getPortfolio());
+                ((View) binding.tvPortfolio.getParent()).setVisibility(View.VISIBLE);
+            } else {
+                ((View) binding.tvPortfolio.getParent()).setVisibility(View.GONE);
+            }
+
             if (user.getProfileImage() != null && !user.getProfileImage().isEmpty()) {
                 Glide.with(this)
                         .load(user.getProfileImage())

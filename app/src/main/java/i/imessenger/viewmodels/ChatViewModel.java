@@ -33,9 +33,10 @@ public class ChatViewModel extends AndroidViewModel {
 
     public ChatViewModel(@NonNull Application application) {
         super(application);
-        chatRepository = new ChatRepository(application);
+        chatRepository = ChatRepository.getInstance(application);
         chatRepository.getCurrentUser().observeForever(user -> {
-            if (user != null) currentUserId = user.getUid();
+            if (user != null)
+                currentUserId = user.getUid();
         });
     }
 
@@ -58,17 +59,18 @@ public class ChatViewModel extends AndroidViewModel {
     public void initChat(String receiverId, String groupId) {
         this.receiverId = receiverId;
         this.groupId = groupId;
-        
+
         // Start listening to Firestore changes (sync to DB)
         chatRepository.syncMessages(receiverId, groupId);
-        
+
         // Expose DB data to UI
         messagesLiveData = chatRepository.getMessages(receiverId, groupId);
     }
 
     public void sendMessage(String messageText, String conversionId, String conversionName, String conversionImage) {
-        if (currentUserId == null) return;
-        
+        if (currentUserId == null)
+            return;
+
         ChatMessage message = new ChatMessage();
         message.senderId = currentUserId;
         message.receiverId = receiverId;
@@ -77,7 +79,7 @@ public class ChatViewModel extends AndroidViewModel {
         message.messageType = "text";
         message.dateTime = getReadableDateTime(new java.util.Date());
         message.dateObject = new java.util.Date();
-        
+
         // Conversion info
         message.conversionId = conversionId;
         message.conversionName = conversionName;
@@ -85,10 +87,11 @@ public class ChatViewModel extends AndroidViewModel {
 
         chatRepository.sendMessage(message);
     }
-    
+
     public void sendMediaMessage(String messageText, List<Uri> mediaUris, List<String> mediaTypes,
-                                  List<String> mediaNames, String conversionId, String conversionName, String conversionImage) {
-        if (currentUserId == null) return;
+            List<String> mediaNames, String conversionId, String conversionName, String conversionImage) {
+        if (currentUserId == null)
+            return;
         if (mediaUris == null || mediaUris.isEmpty()) {
             if (messageText != null && !messageText.trim().isEmpty()) {
                 sendMessage(messageText, conversionId, conversionName, conversionImage);
@@ -139,6 +142,7 @@ public class ChatViewModel extends AndroidViewModel {
     private String getReadableDateTime(java.util.Date date) {
         return new java.text.SimpleDateFormat("MMMM dd, yyyy - hh:mm a", java.util.Locale.getDefault()).format(date);
     }
+
     @Override
     protected void onCleared() {
         super.onCleared();

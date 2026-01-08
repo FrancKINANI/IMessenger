@@ -28,14 +28,22 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.PostVi
 
     public interface OnPostInteractionListener {
         void onLikeClicked(FeedPost post);
+
         void onCommentClicked(FeedPost post);
+
         void onShareClicked(FeedPost post);
+
         void onAuthorClicked(FeedPost post);
+
         void onMediaClicked(FeedPost post, int mediaIndex);
+
         void onDeleteClicked(FeedPost post);
+
+        void onReportClicked(FeedPost post);
     }
 
-    public FeedPostAdapter(Context context, List<FeedPost> posts, String currentUserId, OnPostInteractionListener listener) {
+    public FeedPostAdapter(Context context, List<FeedPost> posts, String currentUserId,
+            OnPostInteractionListener listener) {
         this.context = context;
         this.posts = posts;
         this.currentUserId = currentUserId;
@@ -105,16 +113,33 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.PostVi
                 binding.mediaContainer.setVisibility(View.GONE);
             }
 
-            // Stats
+            // Stats & Actions Integration
             int likeCount = post.getLikeCount();
             int commentCount = post.getCommentCount();
 
-            if (likeCount > 0 || commentCount > 0) {
-                binding.statsLayout.setVisibility(View.VISIBLE);
-                binding.tvLikeCount.setText(likeCount + " " + context.getString(R.string.likes));
-                binding.tvCommentCount.setText(commentCount + " " + context.getString(R.string.comments));
+            // Hide legacy stats layout (we show counts in buttons now)
+            binding.statsLayout.setVisibility(View.GONE);
+
+            // Update Action Buttons with Counts
+            if (likeCount > 0) {
+                binding.tvLike.setText(String.valueOf(likeCount));
             } else {
-                binding.statsLayout.setVisibility(View.GONE);
+                binding.tvLike.setText(context.getString(R.string.like));
+            }
+
+            if (commentCount > 0) {
+                binding.tvComment.setText(String.valueOf(commentCount));
+            } else {
+                binding.tvComment.setText(context.getString(R.string.comment));
+            }
+
+            // View Count
+            int viewCount = post.getViewCount();
+            if (viewCount > 0) {
+                binding.llStats.setVisibility(View.VISIBLE);
+                binding.tvViewCount.setText(viewCount + " views");
+            } else {
+                binding.llStats.setVisibility(View.GONE);
             }
 
             // Like state
@@ -123,33 +148,40 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.PostVi
 
             // Click listeners
             binding.ivAuthorImage.setOnClickListener(v -> {
-                if (listener != null) listener.onAuthorClicked(post);
+                if (listener != null)
+                    listener.onAuthorClicked(post);
             });
 
             binding.tvAuthorName.setOnClickListener(v -> {
-                if (listener != null) listener.onAuthorClicked(post);
+                if (listener != null)
+                    listener.onAuthorClicked(post);
             });
 
             binding.btnLike.setOnClickListener(v -> {
-                if (listener != null) listener.onLikeClicked(post);
+                if (listener != null)
+                    listener.onLikeClicked(post);
             });
 
             binding.btnComment.setOnClickListener(v -> {
-                if (listener != null) listener.onCommentClicked(post);
+                if (listener != null)
+                    listener.onCommentClicked(post);
             });
 
             binding.btnShare.setOnClickListener(v -> {
-                if (listener != null) listener.onShareClicked(post);
+                if (listener != null)
+                    listener.onShareClicked(post);
             });
 
             binding.btnMore.setOnClickListener(v -> showPostMenu(v, post));
 
             binding.ivSingleMedia.setOnClickListener(v -> {
-                if (listener != null) listener.onMediaClicked(post, 0);
+                if (listener != null)
+                    listener.onMediaClicked(post, 0);
             });
 
             binding.videoContainer.setOnClickListener(v -> {
-                if (listener != null) listener.onMediaClicked(post, 0);
+                if (listener != null)
+                    listener.onMediaClicked(post, 0);
             });
         }
 
@@ -197,7 +229,8 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.PostVi
                 binding.recyclerViewMedia.setVisibility(View.VISIBLE);
 
                 MediaGridAdapter adapter = new MediaGridAdapter(context, mediaUrls, mediaTypes, (url, position) -> {
-                    if (listener != null) listener.onMediaClicked(post, position);
+                    if (listener != null)
+                        listener.onMediaClicked(post, position);
                 });
                 binding.recyclerViewMedia.setAdapter(adapter);
             }
@@ -222,6 +255,7 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.PostVi
                 popup.getMenu().add(0, 1, 0, R.string.delete);
             }
             popup.getMenu().add(0, 2, 0, R.string.share);
+            popup.getMenu().add(0, 3, 0, "Report");
 
             popup.setOnMenuItemClickListener(item -> {
                 if (item.getItemId() == 1 && listener != null) {
@@ -229,6 +263,9 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.PostVi
                     return true;
                 } else if (item.getItemId() == 2 && listener != null) {
                     listener.onShareClicked(post);
+                    return true;
+                } else if (item.getItemId() == 3 && listener != null) {
+                    listener.onReportClicked(post);
                     return true;
                 }
                 return false;
@@ -248,7 +285,8 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.PostVi
         }
 
         private String getTimeAgo(Timestamp timestamp) {
-            if (timestamp == null) return "";
+            if (timestamp == null)
+                return "";
 
             long now = System.currentTimeMillis();
             long time = timestamp.toDate().getTime();
@@ -270,4 +308,3 @@ public class FeedPostAdapter extends RecyclerView.Adapter<FeedPostAdapter.PostVi
         }
     }
 }
-

@@ -32,22 +32,39 @@ public class FeedRepository {
 
     // Cache for user posts LiveData to avoid multiple listeners
     private final java.util.Map<String, MutableLiveData<List<FeedPost>>> userPostsCache = new java.util.HashMap<>();
+    private MutableLiveData<List<FeedPost>> cachedFeedPosts;
 
-    public FeedRepository() {
+    private static volatile FeedRepository instance;
+
+    private FeedRepository() {
         db = FirebaseFirestore.getInstance();
         storage = FirebaseStorage.getInstance();
         currentUserId = FirebaseAuth.getInstance().getUid();
     }
 
+    public static FeedRepository getInstance() {
+        if (instance == null) {
+            synchronized (FeedRepository.class) {
+                if (instance == null) {
+                    instance = new FeedRepository();
+                }
+            }
+        }
+        return instance;
+    }
+
     public LiveData<List<FeedPost>> getFeedPosts() {
-        MutableLiveData<List<FeedPost>> postsLiveData = new MutableLiveData<>();
+        if (cachedFeedPosts != null) {
+            return cachedFeedPosts;
+        }
+        cachedFeedPosts = new MutableLiveData<>();
 
         db.collection("posts")
                 .orderBy("createdAt", Query.Direction.DESCENDING)
                 .limit(50)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
-                        postsLiveData.setValue(new ArrayList<>());
+                        cachedFeedPosts.setValue(new ArrayList<>());
                         return;
                     }
                     if (value != null) {
@@ -59,10 +76,10 @@ public class FeedRepository {
                                 posts.add(post);
                             }
                         }
-                        postsLiveData.setValue(posts);
+                        cachedFeedPosts.setValue(posts);
                     }
                 });
-        return postsLiveData;
+        return cachedFeedPosts;
     }
 
     public LiveData<List<FeedPost>> getUserPosts(String userId) {
@@ -102,21 +119,23 @@ public class FeedRepository {
     }
 
     public LiveData<Boolean> createPost(String content, List<Uri> mediaUris, List<String> mediaTypes,
-                                         List<String> mediaNames, String visibility, String targetClass, User author) {
+            List<String> mediaNames, String visibility, String targetClass, User author) {
         MutableLiveData<Boolean> result = new MutableLiveData<>();
 
         if (mediaUris != null && !mediaUris.isEmpty()) {
-            uploadMediaAndCreatePost(content, mediaUris, mediaTypes, mediaNames, visibility, targetClass, author, result);
+            uploadMediaAndCreatePost(content, mediaUris, mediaTypes, mediaNames, visibility, targetClass, author,
+                    result);
         } else {
-            createPostDocument(content, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), visibility, targetClass, author, result);
+            createPostDocument(content, new ArrayList<>(), new ArrayList<>(), new ArrayList<>(), visibility,
+                    targetClass, author, result);
         }
 
         return result;
     }
 
     private void uploadMediaAndCreatePost(String content, List<Uri> mediaUris, List<String> mediaTypes,
-                                          List<String> mediaNames, String visibility, String targetClass, User author,
-                                          MutableLiveData<Boolean> result) {
+            List<String> mediaNames, String visibility, String targetClass, User author,
+            MutableLiveData<Boolean> result) {
         List<String> uploadedUrls = new ArrayList<>();
         uploadMediaRecursively(mediaUris, mediaTypes, 0, uploadedUrls, () -> {
             createPostDocument(content, uploadedUrls, mediaTypes, mediaNames, visibility, targetClass, author, result);
@@ -124,7 +143,7 @@ public class FeedRepository {
     }
 
     private void uploadMediaRecursively(List<Uri> mediaUris, List<String> mediaTypes, int index,
-                                        List<String> uploadedUrls, Runnable onSuccess, Runnable onFailure) {
+            List<String> uploadedUrls, Runnable onSuccess, Runnable onFailure) {
         if (index >= mediaUris.size()) {
             onSuccess.run();
             return;
@@ -177,8 +196,8 @@ public class FeedRepository {
     }
 
     private void createPostDocument(String content, List<String> mediaUrls, List<String> mediaTypes,
-                                    List<String> mediaNames, String visibility, String targetClass, User author,
-                                    MutableLiveData<Boolean> result) {
+            List<String> mediaNames, String visibility, String targetClass, User author,
+            MutableLiveData<Boolean> result) {
         String postId = db.collection("posts").document().getId();
 
         FeedPost post = new FeedPost(
@@ -192,8 +211,7 @@ public class FeedRepository {
                 mediaTypes,
                 Timestamp.now(),
                 visibility,
-                targetClass
-        );
+                targetClass);
         post.setMediaNames(mediaNames);
 
         Log.d(TAG, "Creating post with " + mediaUrls.size() + " media items");
@@ -216,7 +234,8 @@ public class FeedRepository {
                     FeedPost post = documentSnapshot.toObject(FeedPost.class);
                     if (post != null) {
                         List<String> likedBy = post.getLikedBy();
-                        if (likedBy == null) likedBy = new ArrayList<>();
+                        if (likedBy == null)
+                            likedBy = new ArrayList<>();
 
                         if (likedBy.contains(userId)) {
                             db.collection("posts").document(postId)
@@ -267,8 +286,7 @@ public class FeedRepository {
                 author.getFullName(),
                 author.getProfileImage(),
                 content,
-                Timestamp.now()
-        );
+                Timestamp.now());
 
         db.collection("posts").document(postId).collection("comments")
                 .document(commentId)
@@ -295,8 +313,35 @@ public class FeedRepository {
         return result;
     }
 
+    public LiveData<Boolean> reportPost(String postId, String reason) {
+        MutableLiveData<Boolean> result = new MutableLiveData<>();
+        String reportId = db.collection("reports").document().getId();
+
+        i.imessenger.models.Report report = new i.imessenger.models.Report(
+                reportId,
+                currentUserId,
+                postId,
+                "POST",
+                reason,
+                Timestamp.now());
+
+        db.collection("reports").document(reportId)
+                .set(report)
+                .addOnSuccessListener(aVoid -> result.setValue(true))
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Report failed", e);
+                    result.setValue(false);
+                });
+
+        return result;
+    }
+
+    public void incrementViewCount(String postId) {
+        db.collection("posts").document(postId)
+                .update("viewCount", FieldValue.increment(1));
+    }
+
     public String getCurrentUserId() {
         return currentUserId;
     }
 }
-

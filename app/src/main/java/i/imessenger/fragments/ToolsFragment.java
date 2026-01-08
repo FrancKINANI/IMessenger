@@ -44,7 +44,7 @@ public class ToolsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+            Bundle savedInstanceState) {
         binding = FragmentToolsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -63,21 +63,20 @@ public class ToolsFragment extends Fragment {
     }
 
     private void setupClickListeners() {
-        binding.cardCalendar.setOnClickListener(v ->
-            Navigation.findNavController(v).navigate(R.id.action_nav_tools_to_calendarFragment)
-        );
+        binding.cardCalendar.setOnClickListener(
+                v -> Navigation.findNavController(v).navigate(R.id.action_nav_tools_to_calendarFragment));
 
-        binding.cardProjects.setOnClickListener(v ->
-            Navigation.findNavController(v).navigate(R.id.action_nav_tools_to_projectsFragment)
-        );
+        binding.cardProjects.setOnClickListener(
+                v -> Navigation.findNavController(v).navigate(R.id.action_nav_tools_to_projectsFragment));
 
-        binding.cardPolls.setOnClickListener(v ->
-            Navigation.findNavController(v).navigate(R.id.action_nav_tools_to_pollsFragment)
-        );
+        binding.cardPolls.setOnClickListener(
+                v -> Navigation.findNavController(v).navigate(R.id.action_nav_tools_to_pollsFragment));
 
-        binding.cardMore.setOnClickListener(v ->
-            Toast.makeText(getContext(), "More tools coming soon!", Toast.LENGTH_SHORT).show()
-        );
+        binding.cardDocuments.setOnClickListener(
+                v -> Navigation.findNavController(v).navigate(R.id.action_nav_tools_to_documentsFragment));
+
+        binding.cardMore.setOnClickListener(
+                v -> Toast.makeText(getContext(), "More tools coming soon!", Toast.LENGTH_SHORT).show());
     }
 
     private void setupUpcomingEvents() {
@@ -105,28 +104,31 @@ public class ToolsFragment extends Fragment {
         }
 
         db.collection("users").document(currentUserId)
-            .get()
-            .addOnSuccessListener(doc -> {
-                if (doc.exists()) {
-                    User user = doc.toObject(User.class);
-                    if (user != null) {
-                        userRole = user.getRole() != null ? user.getRole() : "student";
-                        userLevel = user.getLevel() != null ? user.getLevel() : "";
-                        upcomingEventsAdapter = new EventAdapter(currentUserId, userRole, new EventAdapter.OnEventClickListener() {
-                            @Override
-                            public void onEventClick(CalendarEvent event) {
-                                Navigation.findNavController(requireView()).navigate(R.id.action_nav_tools_to_calendarFragment);
-                            }
+                .get()
+                .addOnSuccessListener(doc -> {
+                    if (doc.exists()) {
+                        User user = doc.toObject(User.class);
+                        if (user != null) {
+                            userRole = user.getRole() != null ? user.getRole() : "student";
+                            userLevel = user.getLevel() != null ? user.getLevel() : "";
+                            upcomingEventsAdapter = new EventAdapter(currentUserId, userRole,
+                                    new EventAdapter.OnEventClickListener() {
+                                        @Override
+                                        public void onEventClick(CalendarEvent event) {
+                                            Navigation.findNavController(requireView())
+                                                    .navigate(R.id.action_nav_tools_to_calendarFragment);
+                                        }
 
-                            @Override
-                            public void onEventDelete(CalendarEvent event) {}
-                        });
-                        binding.recyclerUpcomingEvents.setAdapter(upcomingEventsAdapter);
+                                        @Override
+                                        public void onEventDelete(CalendarEvent event) {
+                                        }
+                                    });
+                            binding.recyclerUpcomingEvents.setAdapter(upcomingEventsAdapter);
+                        }
                     }
-                }
-                loadUpcomingEvents();
-            })
-            .addOnFailureListener(e -> loadUpcomingEvents());
+                    loadUpcomingEvents();
+                })
+                .addOnFailureListener(e -> loadUpcomingEvents());
     }
 
     private void loadUpcomingEvents() {
@@ -136,32 +138,33 @@ public class ToolsFragment extends Fragment {
         long weekEnd = endCal.getTimeInMillis();
 
         db.collection("events")
-            .whereGreaterThanOrEqualTo("startTime", now)
-            .whereLessThanOrEqualTo("startTime", weekEnd)
-            .orderBy("startTime", Query.Direction.ASCENDING)
-            .limit(5)
-            .get()
-            .addOnSuccessListener(querySnapshot -> {
-                List<CalendarEvent> events = new ArrayList<>();
-                for (QueryDocumentSnapshot doc : querySnapshot) {
-                    CalendarEvent event = doc.toObject(CalendarEvent.class);
-                    if (canViewEvent(event)) {
-                        events.add(event);
+                .whereGreaterThanOrEqualTo("startTime", now)
+                .whereLessThanOrEqualTo("startTime", weekEnd)
+                .orderBy("startTime", Query.Direction.ASCENDING)
+                .limit(5)
+                .get()
+                .addOnSuccessListener(querySnapshot -> {
+                    List<CalendarEvent> events = new ArrayList<>();
+                    for (QueryDocumentSnapshot doc : querySnapshot) {
+                        CalendarEvent event = doc.toObject(CalendarEvent.class);
+                        if (canViewEvent(event)) {
+                            events.add(event);
+                        }
                     }
-                }
 
-                upcomingEventsAdapter.setEvents(events);
-                binding.textNoEvents.setVisibility(events.isEmpty() ? View.VISIBLE : View.GONE);
-                binding.recyclerUpcomingEvents.setVisibility(events.isEmpty() ? View.GONE : View.VISIBLE);
-            })
-            .addOnFailureListener(e -> {
-                binding.textNoEvents.setVisibility(View.VISIBLE);
-                binding.recyclerUpcomingEvents.setVisibility(View.GONE);
-            });
+                    upcomingEventsAdapter.setEvents(events);
+                    binding.textNoEvents.setVisibility(events.isEmpty() ? View.VISIBLE : View.GONE);
+                    binding.recyclerUpcomingEvents.setVisibility(events.isEmpty() ? View.GONE : View.VISIBLE);
+                })
+                .addOnFailureListener(e -> {
+                    binding.textNoEvents.setVisibility(View.VISIBLE);
+                    binding.recyclerUpcomingEvents.setVisibility(View.GONE);
+                });
     }
 
     private boolean canViewEvent(CalendarEvent event) {
-        if (event == null) return false;
+        if (event == null)
+            return false;
 
         if ("PERSONAL".equals(event.getEventType())) {
             return currentUserId.equals(event.getCreatorId());
