@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:padding="12dp" android:background="?attr/selectableItemBackground" android:gravity="center_vertical">
+
+    <ImageView android:id="@+id/ivIcon" android:layout_width="40dp" android:layout_height="40dp" android:src="@drawable/ic_document" app:tint="@color/ismagi_blue_primary" android:padding="4dp" android:background="@drawable/circle_bg_light" />
+
+    <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:orientation="vertical" android:layout_marginStart="16dp">
+
+        <TextView android:id="@+id/tvName" android:layout_width="match_parent" android:layout_height="wrap_content" android:textSize="16sp" android:textColor="@color/text_primary" android:textStyle="bold" android:maxLines="1" android:ellipsize="end" tools:text="Cours_Programmation_Java.pdf" />
+
+        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="4dp">
+
+            <TextView android:id="@+id/tvInfo" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="12sp" android:textColor="@color/text_secondary" tools:text="2.4 MB • 2 days ago" />
+
+            <TextView android:id="@+id/tvUploader" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textSize="12sp" android:textColor="@color/text_secondary" android:layout_marginStart="8dp" tools:text="by Prof. Smith" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <ImageButton android:id="@+id/btnDownload" android:layout_width="32dp" android:layout_height="32dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_download" app:tint="@color/ismagi_accent" android:contentDescription="Download" />
+
+    <ImageButton android:id="@+id/btnMore" android:layout_width="32dp" android:layout_height="32dp" android:background="?attr/selectableItemBackgroundBorderless" android:src="@drawable/ic_more_vert" app:tint="@color/text_secondary" android:layout_marginStart="8dp"/>
+
+</LinearLayout>

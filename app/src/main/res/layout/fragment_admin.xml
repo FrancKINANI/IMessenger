@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/background_gray" android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" android:background="#1E1E2C" app:navigationIcon="@drawable/ic_back_white" app:title="Admin Dashboard" app:titleTextColor="@color/white" />
+
+    <com.google.android.material.tabs.TabLayout android:id="@+id/tabLayout" android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/white" app:tabIndicatorColor="@color/ismagi_accent" app:tabSelectedTextColor="@color/ismagi_accent" app:tabTextColor="@color/text_secondary">
+
+        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Reports" />
+
+        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Users" />
+
+        <com.google.android.material.tabs.TabItem android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Stats" />
+    </com.google.android.material.tabs.TabLayout>
+
+    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/recyclerReports" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:padding="8dp" android:visibility="visible" tools:listitem="@layout/item_report" />
+
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/recyclerUsers" android:layout_width="match_parent" android:layout_height="match_parent" android:clipToPadding="false" android:padding="8dp" android:visibility="gone" tools:listitem="@layout/item_user_admin" />
+
+        <ScrollView android:id="@+id/layoutStats" android:layout_width="match_parent" android:layout_height="match_parent" android:visibility="gone">
+
+            <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp">
+
+                <include android:id="@+id/cardUserCount" layout="@layout/card_admin_stat" />
+
+                <include android:id="@+id/cardPostCount" layout="@layout/card_admin_stat" />
+
+                <include android:id="@+id/cardReportCount" layout="@layout/card_admin_stat" />
+
+            </LinearLayout>
+        </ScrollView>
+
+        <TextView android:id="@+id/emptyView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="center" android:text="No items found." android:visibility="gone" />
+
+    </FrameLayout>
+
+</LinearLayout>

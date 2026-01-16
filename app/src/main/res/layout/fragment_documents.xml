@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/background_gray">
+
+    <com.google.android.material.appbar.AppBarLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:background="@color/ismagi_blue_primary">
+
+        <androidx.appcompat.widget.Toolbar android:id="@+id/toolbar" android:layout_width="match_parent" android:layout_height="?attr/actionBarSize" app:title="Documents" app:titleTextColor="@color/white" app:navigationIcon="@drawable/ic_back_white"/>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <LinearLayout android:layout_width="match_parent" android:layout_height="match_parent" android:orientation="vertical" app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <!-- Folder Tabs (Simple Chips for now) -->
+        <HorizontalScrollView android:layout_width="match_parent" android:layout_height="wrap_content" android:padding="12dp" android:scrollbars="none">
+
+            <com.google.android.material.chip.ChipGroup android:id="@+id/chipGroupFolders" android:layout_width="wrap_content" android:layout_height="wrap_content" app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip android:id="@+id/chipGeneral" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="General" android:checked="true" style="@style/Widget.MaterialComponents.Chip.Choice"/>
+
+                <com.google.android.material.chip.Chip android:id="@+id/chipCourses" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Courses" style="@style/Widget.MaterialComponents.Chip.Choice"/>
+
+                <com.google.android.material.chip.Chip android:id="@+id/chipExams" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Exams" style="@style/Widget.MaterialComponents.Chip.Choice"/>
+
+            </com.google.android.material.chip.ChipGroup>
+
+        </HorizontalScrollView>
+
+        <androidx.recyclerview.widget.RecyclerView android:id="@+id/recyclerViewDocuments" android:layout_width="match_parent" android:layout_height="match_parent" tools:listitem="@layout/item_document"/>
+
+        <TextView android:id="@+id/emptyView" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="No documents found in this folder." android:layout_gravity="center" android:layout_marginTop="32dp" android:visibility="gone"/>
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton android:id="@+id/fabUpload" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_gravity="bottom|end" android:layout_margin="16dp" android:text="Upload" app:icon="@drawable/ic_upload" android:textColor="@color/white" app:iconTint="@color/white" app:backgroundTint="@color/ismagi_accent"/>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
