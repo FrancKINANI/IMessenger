@@ -20,7 +20,7 @@
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBkwksgWeN8wj98SoURgmEImQPhiJQ9hEA"
+          "current_key": "" // add your google api key here
         }
       ],
       "services": {
